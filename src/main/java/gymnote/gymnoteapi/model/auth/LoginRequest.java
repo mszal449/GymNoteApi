@@ -1,11 +1,27 @@
 package gymnote.gymnoteapi.model.auth;
 
-import lombok.Builder;
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@Builder
 public class LoginRequest {
-    private String email;
+    @NotBlank
+    private String username; // Use username
+
+    @NotBlank
     private String password;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

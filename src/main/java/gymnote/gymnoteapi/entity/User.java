@@ -1,81 +1,89 @@
 package gymnote.gymnoteapi.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import net.minidev.json.annotate.JsonIgnore;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-import java.util.Collection;
-import java.util.List;
-
-@Getter
-@Setter
-@Data
 @Entity
-@Table(name = "users")
-public class User implements UserDetails {
-
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @Column(nullable = false, unique= true)
+    @NotBlank
+    @Size(max = 20)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @NotBlank
+    @Size(max = 50)
+    @Email
     private String email;
 
-    @Column(nullable = false)
-    @JsonIgnore
+    @NotBlank
+    @Size(max = 120)
     private String password;
 
-    @Column(nullable = false)
-    private boolean enabled = true;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(  name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
-    @Column(nullable = false)
-    private boolean accountNonExpired = true;
-
-    @Column(nullable = false)
-    private boolean credentialsNonExpired = true;
-
-     @Column(nullable = false)
-    private boolean accountNonLocked = true;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
-    @OnDelete(action = OnDeleteAction.CASCADE) // Cascade delete roles when user is deleted
-    private List<String> roles;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> (GrantedAuthority) () -> "ROLE_" + role)
-                .toList();
+    public User() {
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return accountNonExpired;
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
     }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return accountNonLocked;
+    public Long getId() {
+        return id;
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return credentialsNonExpired;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

@@ -1,25 +1,17 @@
 package gymnote.gymnoteapi.repository;
 
 import gymnote.gymnoteapi.entity.User;
-import lombok.Data;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username); // Find by username
 
-    // Find a user by username
-    Optional<User> findByUsername(String username);
+    boolean existsByUsername(@NotBlank @Size(max = 20) String username);
 
-    // Find a user by email
-    Optional<User> findByEmail(String email);
-
-    // Check if a user exists by username
-    boolean existsByUsername(String username);
-
-    // Check if a user exists by email
-    boolean existsByEmail(String email);
+    boolean existsByEmail(@NotBlank @Size(max = 50) @Email String email);
 }
