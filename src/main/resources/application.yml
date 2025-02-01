@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gymnoteapi
+    username: admin
+    password: Taekwondo1!!
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  application:
+    name: GymNoteApi
+
+security:
+  jwt:
+    secretKey: afbea9ad41a888ec6540e7390eedc14f4c34856affaa205c7eacee8e70bd911bd7df7a2d35d171861328a697bc610d081eb02b0d00f55d79a1600a6916bfbc9e3434c567a62295f1d92c84c22a8bd5cbfcab458c1daef9f4c8bfb097d0a743390c38d8b9619efefdcdbc34598954ddb497f30d4df94595434fe9c5d8917beae96007e06606130fac7a97a103839bfba2f314ac61a0c21ed5334a6a4dca5ab2d484d4bb8d34d31c5cbe11e8cf3394684738eab5231e7eea898b99fefaff01827b0be5d91a2f6bd3c987409ea768633526c7cf907cbb158617b7957b6d7815554a740056e318ea8b91d9966f3c16e903dc2a42c21cdf93db82410397715537c3f9
+    accessTokenExpiration: 900000 # 15 minutes in milliseconds
+    refreshTokenExpiration: 604800000 # 7 days in milliseconds
