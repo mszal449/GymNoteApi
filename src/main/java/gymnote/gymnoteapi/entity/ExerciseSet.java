@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Sets")
+@Table(name = "ExerciseSets")
 @Getter
 @Setter
-public class Set {
+public class ExerciseSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long setId;
