@@ -1,36 +1,16 @@
-# Auth pipelines:
+# GymNoteAPI
+**`In Development`** **`API`** **`Springboot`**
 
-## Registration
-1. Client -> Registration controller
-User provides credentials for authentication:
-- username
-- email
-- password
+The GymNote API project that will be used as backend for mobile GymNote apps.
+API manages PostgreSQL database, to allow users to save their workout plans and progress.
 
-2. Registration controller -> Registration Service
-- Checks if user exists
-- Encodes password
-- Saves user to database
+## 💻️ Features
+- **Springboot API** for scalability and reliability
+- **JWT authentication** supporting refresh tokens
+- **PostgreSQL** for data storage
+- **Testing** for code assurance
 
-
-## Login
-1. Client -> Controller
-- User provides credentials
-
-2. Controller -> AuthenticationManager
-- Uses credentials to log in
-
-3. AuthenticationManager -> Client
-- JWT token generation
-
-## JWT Authentication pipeline
-1. Request -> JwtAuthenticationFilter
-
-2. JwtAuthenticationFilter-> decoder
-- JWT token get's decoded to be used
-
-3. JwtAuthenticationFilter -> JwtToPrincipalConverter
-- Principals are getting extracted from token
-
-4. JwtAuthenticationFilter -> ContextHandler
-- If principals are not null, user for current request is getting set
+## 🛠️ TODO
+- **Workout plan management**
+- **OAuth integration**
+- **Deployment**
