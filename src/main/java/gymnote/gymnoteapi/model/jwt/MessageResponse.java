@@ -1,6 +1,11 @@
 package gymnote.gymnoteapi.model.jwt;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class MessageResponse {
     private String message;
 
