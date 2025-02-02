@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "WorkoutExercises")
@@ -28,5 +27,5 @@ public class WorkoutExercise {
     private Integer exerciseOrder;
 
     @OneToMany(mappedBy = "workoutExercise", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Set> sets;
+    private List<ExerciseSet> sets;
 }
