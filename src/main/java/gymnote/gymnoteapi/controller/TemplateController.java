@@ -9,6 +9,8 @@ import gymnote.gymnoteapi.model.template.TemplatesResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,10 +30,12 @@ public class TemplateController {
     @GetMapping
     public ResponseEntity<TemplatesResponse> getUserTemplates(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<Template> templates = templateService.getTemplatesByUserId(userDetails.getId());
+
         TemplatesResponse templatesResponse = new TemplatesResponse();
         List<TemplateDTO> templateDTOS = templates.stream().map(TemplateDTO::new).toList();
         templatesResponse.setTemplates(templateDTOS);
         templatesResponse.setCount(templates.size());
+
         return ResponseEntity.ok(templatesResponse);
     }
 
