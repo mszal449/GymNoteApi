@@ -14,7 +14,7 @@ import java.util.List;
 public class Template {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long templateId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

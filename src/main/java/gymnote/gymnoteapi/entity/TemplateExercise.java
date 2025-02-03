@@ -12,7 +12,7 @@ import lombok.Setter;
 public class TemplateExercise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long templateExerciseId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "template_id", nullable = false)

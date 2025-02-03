@@ -50,7 +50,6 @@ public class JwtUtils {
                 .getSubject();
     }
 
-
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parserBuilder().setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(authToken);            return true;
