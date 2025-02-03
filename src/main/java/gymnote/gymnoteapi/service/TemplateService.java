@@ -24,11 +24,6 @@ public class TemplateService {
         return templateRepository.findByIdAndUserId(id, userId).orElse(null);
     }
 
-    public List<Template> getTemplatesByUsername(String username) {
-        Long userId = userService.findByUsername(username).get().getId();
-        return userId != null ? templateRepository.findByUserId(userId) : List.of();
-    }
-
     public Optional<Template> createTemplate(Template template, Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
