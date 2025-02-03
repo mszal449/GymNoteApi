@@ -12,7 +12,7 @@ import lombok.Setter;
 public class ExerciseSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long setId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "workout_exercise_id", nullable = false)

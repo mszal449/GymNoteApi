@@ -13,7 +13,7 @@ import java.util.List;
 public class WorkoutExercise {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long workoutExerciseId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "workout_id", nullable = false)
