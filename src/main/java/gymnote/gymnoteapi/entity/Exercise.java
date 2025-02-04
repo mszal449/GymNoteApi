@@ -1,5 +1,6 @@
 package gymnote.gymnoteapi.entity;
 
+import gymnote.gymnoteapi.model.exercise.NewExerciseRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,16 +14,30 @@ public class Exercise {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
+
     @Column(nullable = false)
     private String exerciseName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ExerciseType type;
+    private EExerciseType type;
 
     private String description;
+
+    private Integer orderIndex;
+
+    public Exercise() {
+    }
+
+    public Exercise(NewExerciseRequest newExerciseRequest) {
+        this.exerciseName = newExerciseRequest.getExerciseName();
+        this.type = EExerciseType.valueOf(newExerciseRequest.getType());
+        this.description = newExerciseRequest.getDescription();
+        this.orderIndex = newExerciseRequest.getOrderIndex();
+        this.type = EExerciseType.valueOf(newExerciseRequest.getType());
+    }
 }
 
-enum ExerciseType {
-    REPS, DURATION, DISTANCE
-}
