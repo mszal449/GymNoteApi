@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "TemplateExercises")
+@Table(name = "template_exercises")
 @Getter
 @Setter
 public class TemplateExercise {

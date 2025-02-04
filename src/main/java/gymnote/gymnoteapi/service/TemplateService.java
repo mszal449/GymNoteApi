@@ -2,6 +2,7 @@ package gymnote.gymnoteapi.service;
 
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.User;
+import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import gymnote.gymnoteapi.repository.TemplateRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,12 @@ public class TemplateService {
     private final TemplateRepository templateRepository;
     private final UserService userService;
 
-    public List<Template> getTemplatesByUserId(Long userId) {
-        return templateRepository.findByUserId(userId);
+    public List<TemplateDTO> getTemplatesByUserId(Long userId) {
+        return templateRepository.findByUserId(userId).stream().map(TemplateDTO::new).toList();
+    }
+
+    public Optional<Template> getTemplateById(Long id) {
+        return templateRepository.findById(id);
     }
 
     public Template getUserTemplateById(Long id, Long userId) {

@@ -58,7 +58,6 @@ public class ExerciseService {
         return Optional.of(new ExerciseDTO(resultExercise));
     }
 
-
     public boolean deleteExercise(Long exerciseId, Long userId) {
         Optional<Exercise> foundExercise = exerciseRepository.findByIdAndUserId(exerciseId, userId);
         if (foundExercise.isEmpty()) {

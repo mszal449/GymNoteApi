@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Exercises")
+@Table(name = "exercises")
 @Getter
 @Setter
 public class Exercise {
