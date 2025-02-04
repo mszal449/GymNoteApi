@@ -1,6 +1,5 @@
 package gymnote.gymnoteapi.controller;
 
-import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.model.dto.ExerciseDTO;
 import gymnote.gymnoteapi.model.exercise.ExerciseResponse;
 import gymnote.gymnoteapi.model.exercise.NewExerciseRequest;
@@ -22,20 +21,18 @@ import java.util.Optional;
 public class ExerciseController {
     private final ExerciseService exerciseService;
 
-
     @GetMapping("/{exerciseId}")
     public ResponseEntity<ExerciseResponse> getExerciseById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long exerciseId) {
 
         Long userId = userDetails.getId();
-        Optional<ExerciseDTO> exercise = exerciseService.getUserExerciseById(exerciseId, userId);
+        Optional<ExerciseDTO> exerciseDTO = exerciseService.getUserExerciseById(exerciseId, userId);
 
-        if (exercise.isEmpty()) {
+        if (exerciseDTO.isEmpty()) {
             return ResponseEntity.notFound().build();
         } else {
-            ExerciseResponse exerciseResponse = new ExerciseResponse();
-            exerciseResponse.setExercise(exercise.get());
+            ExerciseResponse exerciseResponse = new ExerciseResponse(exerciseDTO.get());
             return ResponseEntity.ok(exerciseResponse);
         }
     }
@@ -46,16 +43,46 @@ public class ExerciseController {
             @RequestBody NewExerciseRequest newExerciseRequest) {
         Long userId = userDetails.getId();
 
-        Exercise exercise = new Exercise(newExerciseRequest);
+        ExerciseDTO exerciseDTO = new ExerciseDTO(newExerciseRequest);
+        Optional<ExerciseDTO> newExerciseDTO = exerciseService.createExercise(exerciseDTO, userId);
 
-
-        Optional<ExerciseDTO> newExercise = exerciseService.createExercise(exercise, userId);
-        if (newExercise.isEmpty()) {
+        if (newExerciseDTO.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
-        ExerciseResponse exerciseResponse = new ExerciseResponse();
-        exerciseResponse.setExercise(newExercise.get());
+        ExerciseResponse exerciseResponse = new ExerciseResponse(newExerciseDTO.get());
         return ResponseEntity.ok(exerciseResponse);
+    }
+
+    @PutMapping("/{exerciseId}")
+    public ResponseEntity<ExerciseResponse> updateExercise(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long exerciseId,
+            @RequestBody NewExerciseRequest updateExerciseRequest) {
+        Long userId = userDetails.getId();
+
+        ExerciseDTO exerciseDTO = new ExerciseDTO(updateExerciseRequest);
+        Optional<ExerciseDTO> updatedExerciseDTO = exerciseService.updateExercise(exerciseId, userId, exerciseDTO);
+
+        if (updatedExerciseDTO.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ExerciseResponse exerciseResponse = new ExerciseResponse(updatedExerciseDTO.get());
+        return ResponseEntity.ok(exerciseResponse);
+    }
+
+    @DeleteMapping("/{exerciseId}")
+    public ResponseEntity<Void> deleteExercise(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long exerciseId) {
+        Long userId = userDetails.getId();
+
+        boolean isDeleted = exerciseService.deleteExercise(exerciseId, userId);
+        if (!isDeleted) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package gymnote.gymnoteapi.entity;
 
+import gymnote.gymnoteapi.model.dto.ExerciseDTO;
 import gymnote.gymnoteapi.model.exercise.NewExerciseRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -37,7 +38,13 @@ public class Exercise {
         this.type = EExerciseType.valueOf(newExerciseRequest.getType());
         this.description = newExerciseRequest.getDescription();
         this.orderIndex = newExerciseRequest.getOrderIndex();
-        this.type = EExerciseType.valueOf(newExerciseRequest.getType());
+    }
+
+    public Exercise(ExerciseDTO exerciseDTO) {
+        this.exerciseName = exerciseDTO.getExerciseName();
+        this.description = exerciseDTO.getDescription();
+        this.orderIndex = exerciseDTO.getOrderIndex();
+        this.type = EExerciseType.valueOf(exerciseDTO.getType());
     }
 }
 
