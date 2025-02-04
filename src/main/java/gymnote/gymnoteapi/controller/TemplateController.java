@@ -9,8 +9,6 @@ import gymnote.gymnoteapi.model.template.TemplatesResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,8 +40,7 @@ public class TemplateController {
     @GetMapping("/{id}")
     public ResponseEntity<TemplateResponse> getUserTemplateById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id ) {
         Template template = templateService.getUserTemplateById(id, userDetails.getId());
         if (template == null) {
             return ResponseEntity.notFound().build();
@@ -58,8 +55,7 @@ public class TemplateController {
     @PostMapping
     public ResponseEntity<TemplateResponse> createTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody NewTemplateRequest newTemplateRequest
-    ) {
+            @RequestBody NewTemplateRequest newTemplateRequest ) {
         Template template = new Template();
         template.setTemplateName(newTemplateRequest.getTemplateName());
         template.setDescription(newTemplateRequest.getDescription());
@@ -82,8 +78,7 @@ public class TemplateController {
     public ResponseEntity<TemplateResponse> updateTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id,
-            @RequestBody NewTemplateRequest newTemplateRequest
-    ) {
+            @RequestBody NewTemplateRequest newTemplateRequest) {
         Template template = new Template();
         template.setId(id);
         template.setTemplateName(newTemplateRequest.getTemplateName());
@@ -107,8 +102,7 @@ public class TemplateController {
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteTemplateById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long id
-    ) {
+            @PathVariable Long id) {
         try {
             templateService.deleteUserTemplateById(id, userDetails.getId());
             return ResponseEntity.ok(new MessageResponse("Template deleted successfully"));
