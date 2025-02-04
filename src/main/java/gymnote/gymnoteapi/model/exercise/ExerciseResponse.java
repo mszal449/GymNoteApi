@@ -8,4 +8,8 @@ import lombok.Setter;
 @Setter
 public class ExerciseResponse {
     private ExerciseDTO exercise;
+
+    public ExerciseResponse(ExerciseDTO exercise) {
+        this.exercise = exercise;
+    }
 }
