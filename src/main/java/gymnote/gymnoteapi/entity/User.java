@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,5 +52,16 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    @OneToMany(mappedBy = "user")
+    private Collection<Template> template;
+
+    public Collection<Template> getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(Collection<Template> template) {
+        this.template = template;
     }
 }

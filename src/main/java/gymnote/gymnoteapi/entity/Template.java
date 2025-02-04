@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "Templates")
+@Table(name = "templates")
 @Getter
 @Setter
 public class Template {
@@ -30,4 +31,9 @@ public class Template {
 
     @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TemplateExercise> templateExercises;
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "template")
+    private Collection<Workout> workout;
 }

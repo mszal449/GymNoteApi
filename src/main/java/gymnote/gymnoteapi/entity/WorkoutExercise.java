@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "WorkoutExercises")
+@Table(name = "workout_exercises")
 @Getter
 @Setter
 public class WorkoutExercise {
