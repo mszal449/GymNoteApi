@@ -3,9 +3,10 @@ package gymnote.gymnoteapi;
 import gymnote.gymnoteapi.controller.TemplateController;
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.model.jwt.MessageResponse;
-import gymnote.gymnoteapi.model.template.NewTemplateRequest;
-import gymnote.gymnoteapi.model.template.TemplateResponse;
+import gymnote.gymnoteapi.exception.template.TemplateCreationException;
+import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
+import gymnote.gymnoteapi.model.dto.TemplateDTO;
+import gymnote.gymnoteapi.model.template.CreateTemplateRequest;
 import gymnote.gymnoteapi.model.template.TemplatesResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateService;
@@ -15,12 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -86,22 +87,24 @@ class TemplateControllerTest {
 
         when(templateService.getUserTemplateById(1L, userId)).thenReturn(template);
 
-        ResponseEntity<TemplateResponse> response = templateController.getUserTemplateById(userDetails, 1L);
+        ResponseEntity<TemplateDTO> response = templateController.getUserTemplateById(userDetails, 1L);
 
         assertNotNull(response);
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Template 1", response.getBody().getTemplate().getName());
+        assertEquals("Template 1", response.getBody().getName());
     }
 
     @Test
     void getUserTemplateById_NotFound() {
         // Arrange
         UserDetailsImpl userDetails = new UserDetailsImpl(1L, "username", "test@test.com", "password", Collections.emptyList());
-        when(templateService.getUserTemplateById(1L, 1L)).thenReturn(null);
+        when(templateService.getUserTemplateById(1L, 1L)).thenThrow(
+                new TemplateNotFoundException("Template not found")
+        );
 
         // Act
-        ResponseEntity<TemplateResponse> response = templateController.getUserTemplateById(userDetails, 1L);
+        ResponseEntity<TemplateDTO> response = templateController.getUserTemplateById(userDetails, 1L);
 
         // Assert
         assertNotNull(response);
@@ -116,7 +119,7 @@ class TemplateControllerTest {
         User user = new User();
         user.setId(userDetails.getId());
 
-        NewTemplateRequest request = new NewTemplateRequest();
+        CreateTemplateRequest request = new CreateTemplateRequest();
         request.setTemplateName("Template 1");
         request.setDescription("Description 1");
 
@@ -127,30 +130,32 @@ class TemplateControllerTest {
         template.setUser(user);
 
 
-        when(templateService.createTemplate(any(Template.class), eq(1L))).thenReturn(Optional.of(template));
+        when(templateService.createUserTemplate(any(Template.class), eq(1L))).thenReturn(template);
 
         // Act
-        ResponseEntity<TemplateResponse> response = templateController.createTemplate(userDetails, request);
+        ResponseEntity<TemplateDTO> response = templateController.createTemplate(userDetails, request);
 
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Template 1", response.getBody().getTemplate().getName());
+        assertEquals("Template 1", response.getBody().getName());
     }
 
     @Test
     void createTemplate_Failure() {
         // Arrange
         UserDetailsImpl userDetails = new UserDetailsImpl(1L, "username", "test@test.com", "password", Collections.emptyList());
-        NewTemplateRequest request = new NewTemplateRequest();
+        CreateTemplateRequest request = new CreateTemplateRequest();
         request.setTemplateName("Template 1");
         request.setDescription("Description 1");
 
-        when(templateService.createTemplate(any(Template.class), eq(1L))).thenReturn(Optional.empty());
+        when(templateService.createUserTemplate(any(Template.class), eq(1L))).thenThrow(
+                new TemplateCreationException("Failed to create template", new Exception())
+        );
 
         // Act
-        ResponseEntity<TemplateResponse> response = templateController.createTemplate(userDetails, request);
+        ResponseEntity<TemplateDTO> response = templateController.createTemplate(userDetails, request);
 
         // Assert
         assertNotNull(response);
@@ -164,26 +169,24 @@ class TemplateControllerTest {
         doNothing().when(templateService).deleteUserTemplateById(1L, 1L);
 
         // Act
-        ResponseEntity<MessageResponse> response = templateController.deleteTemplateById(userDetails, 1L);
+        ResponseEntity<?> response = templateController.deleteTemplateById(userDetails, 1L);
 
         // Assert
         assertNotNull(response);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Template deleted successfully", response.getBody().getMessage());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
     void deleteTemplateById_NotFound() {
         // Arrange
         UserDetailsImpl userDetails = new UserDetailsImpl(1L, "username", "test@test.com", "password", Collections.emptyList());
-        doThrow(new IllegalArgumentException("Template not found")).when(templateService).deleteUserTemplateById(1L, 1L);
+        doThrow(new TemplateNotFoundException("Template not found")).when(templateService).deleteUserTemplateById(1L, 1L);
 
         // Act
-        ResponseEntity<MessageResponse> response = templateController.deleteTemplateById(userDetails, 1L);
+        ResponseEntity<?> response = templateController.deleteTemplateById(userDetails, 1L);
 
         // Assert
         assertNotNull(response);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Template not found", response.getBody().getMessage());
     }
 }

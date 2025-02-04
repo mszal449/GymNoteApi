@@ -1,13 +1,13 @@
 package gymnote.gymnoteapi.entity;
 
 import gymnote.gymnoteapi.model.dto.ExerciseDTO;
-import gymnote.gymnoteapi.model.exercise.NewExerciseRequest;
+import gymnote.gymnoteapi.model.exercise.CreateExerciseRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Exercises")
+@Table(name = "exercises")
 @Getter
 @Setter
 public class Exercise {
@@ -33,11 +33,11 @@ public class Exercise {
     public Exercise() {
     }
 
-    public Exercise(NewExerciseRequest newExerciseRequest) {
-        this.exerciseName = newExerciseRequest.getExerciseName();
-        this.type = EExerciseType.valueOf(newExerciseRequest.getType());
-        this.description = newExerciseRequest.getDescription();
-        this.orderIndex = newExerciseRequest.getOrderIndex();
+    public Exercise(CreateExerciseRequest createExerciseRequest) {
+        this.exerciseName = createExerciseRequest.getExerciseName();
+        this.type = EExerciseType.valueOf(createExerciseRequest.getType());
+        this.description = createExerciseRequest.getDescription();
+        this.orderIndex = createExerciseRequest.getOrderIndex();
     }
 
     public Exercise(ExerciseDTO exerciseDTO) {
@@ -45,6 +45,10 @@ public class Exercise {
         this.description = exerciseDTO.getDescription();
         this.orderIndex = exerciseDTO.getOrderIndex();
         this.type = EExerciseType.valueOf(exerciseDTO.getType());
+    }
+
+    public ExerciseDTO toDTO() {
+        return new ExerciseDTO(this);
     }
 }
 

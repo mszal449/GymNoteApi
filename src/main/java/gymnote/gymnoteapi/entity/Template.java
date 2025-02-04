@@ -1,14 +1,18 @@
 package gymnote.gymnoteapi.entity;
 
+import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseIllegalOrderIdException;
+import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "Templates")
+@Table(name = "templates")
 @Getter
 @Setter
 public class Template {
@@ -29,5 +33,21 @@ public class Template {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TemplateExercise> templateExercises;
+    private List<TemplateExercise> templateExercises = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "template")
+    private Collection<Workout> workout;
+
+    public TemplateDTO toDTO() {
+        TemplateDTO templateDTO = new TemplateDTO();
+        templateDTO.setId(id);
+        templateDTO.setName(templateName);
+        templateDTO.setDescription(description);
+        templateDTO.setOwnerId(user.getId());
+        templateDTO.setExercises(templateExercises.stream().map(TemplateExercise::toDTO).toList());
+
+        return templateDTO;
+    }
 }

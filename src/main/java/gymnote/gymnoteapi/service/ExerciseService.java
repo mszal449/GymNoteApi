@@ -1,11 +1,15 @@
 package gymnote.gymnoteapi.service;
 
-import gymnote.gymnoteapi.entity.EExerciseType;
 import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.model.dto.ExerciseDTO;
+import gymnote.gymnoteapi.exception.UserNotFoundException;
+import gymnote.gymnoteapi.exception.exercise.ExerciseCreationException;
+import gymnote.gymnoteapi.exception.exercise.ExerciseDeletionException;
+import gymnote.gymnoteapi.exception.exercise.ExerciseNotFoundException;
+import gymnote.gymnoteapi.exception.exercise.ExerciseUpdateException;
 import gymnote.gymnoteapi.repository.ExerciseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,55 +20,68 @@ public class ExerciseService {
     private final ExerciseRepository exerciseRepository;
     private final UserService userService;
 
-    public Optional<ExerciseDTO> getUserExerciseById(Long exerciseId, Long userId) {
-        return exerciseRepository.findByIdAndUserId(exerciseId, userId).map(ExerciseDTO::new);
+    public Exercise getUserExerciseById(Long exerciseId, Long userId) {
+        return exerciseRepository.findByIdAndUserId(exerciseId, userId)
+                .orElseThrow(() -> new ExerciseNotFoundException(
+                        "Exercise not found with id: " + exerciseId + " for user: " + userId
+                ));
     }
 
-    public Optional<ExerciseDTO> createExercise(ExerciseDTO exercise, Long userId) {
-        Optional<User> foundUser = userService.findById(userId);
-        if (foundUser.isEmpty()) {
-            return Optional.empty();
+    public Exercise createExercise(Exercise exercise, Long userId) {
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        exercise.setUser(user);
+        try {
+            return exerciseRepository.save(exercise);
+        } catch (DataIntegrityViolationException e) {
+            throw new ExerciseCreationException("Failed to create exercise due to data integrity violation", e);
+        } catch (Exception e) {
+            throw new ExerciseCreationException("Failed to create exercise", e);
         }
-        User user = foundUser.get();
-
-        Exercise newExercise = new Exercise(exercise);
-        newExercise.setUser(user);
-
-        Exercise resultExercise = exerciseRepository.save(newExercise);
-        return Optional.of(new ExerciseDTO(resultExercise));
     }
 
-    public Optional<ExerciseDTO> updateExercise(Long exerciseId, Long userId, ExerciseDTO updateExerciseRequest) {
-        Optional<Exercise> foundExercise = exerciseRepository.findByIdAndUserId(exerciseId, userId);
-        if (foundExercise.isEmpty()) {
-            return Optional.empty();
-        }
+    public Exercise updateExercise(Long exerciseId, Long userId, Exercise exerciseData) {
+        Exercise exercise = exerciseRepository.findByIdAndUserId(exerciseId, userId)
+                .orElseThrow(() -> new ExerciseNotFoundException(
+                        "Exercise not found with id: " + exerciseId + " for user: " + userId
+                ));
 
-        Exercise exercise = foundExercise.get();
-        if (updateExerciseRequest.getExerciseName() != null) {
-            exercise.setExerciseName(updateExerciseRequest.getExerciseName());
-        }
-        if (updateExerciseRequest.getType() != null) {
-            exercise.setType(EExerciseType.valueOf(updateExerciseRequest.getType()));
-        }
-        if (updateExerciseRequest.getDescription() != null) {
-            exercise.setDescription(updateExerciseRequest.getDescription());
-        }
-        if (updateExerciseRequest.getOrderIndex() != null) {
-            exercise.setOrderIndex(updateExerciseRequest.getOrderIndex());
-        }
+        updateExerciseFields(exercise, exerciseData);
 
-        Exercise resultExercise = exerciseRepository.save(exercise);
-        return Optional.of(new ExerciseDTO(resultExercise));
+        try {
+            return exerciseRepository.save(exercise);
+        } catch (DataIntegrityViolationException e) {
+            throw new ExerciseUpdateException("Failed to update exercise due to data integrity violation", e);
+        } catch (Exception e) {
+            throw new ExerciseUpdateException("Failed to update exercise", e);
+        }
     }
 
+    public void deleteExercise(Long exerciseId, Long userId) {
+        Exercise exercise = exerciseRepository.findByIdAndUserId(exerciseId, userId)
+                .orElseThrow(() -> new ExerciseNotFoundException(
+                "Exercise not found with id: " + exerciseId + " for user: " + userId
+        ));
 
-    public boolean deleteExercise(Long exerciseId, Long userId) {
-        Optional<Exercise> foundExercise = exerciseRepository.findByIdAndUserId(exerciseId, userId);
-        if (foundExercise.isEmpty()) {
-            return false;
+        try {
+            exerciseRepository.delete(exercise);
+        } catch (Exception e) {
+            throw new ExerciseDeletionException("Failed to delete exercise", e);
         }
-        exerciseRepository.delete(foundExercise.get());
-        return true;
+    }
+
+    private void updateExerciseFields(Exercise exercise, Exercise exerciseData) {
+        Optional.ofNullable(exerciseData.getExerciseName())
+                .ifPresent(exercise::setExerciseName);
+
+        Optional.ofNullable(exerciseData.getDescription())
+                .ifPresent(exercise::setDescription);
+
+        Optional.ofNullable(exerciseData.getType())
+                .ifPresent(exercise::setType);
+
+        Optional.ofNullable(exerciseData.getOrderIndex())
+                .ifPresent(exercise::setOrderIndex);
     }
 }

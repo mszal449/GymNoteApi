@@ -1,7 +1,7 @@
 package gymnote.gymnoteapi.model.dto;
 
 import gymnote.gymnoteapi.entity.Exercise;
-import gymnote.gymnoteapi.model.exercise.NewExerciseRequest;
+import gymnote.gymnoteapi.model.exercise.CreateExerciseRequest;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,10 +26,10 @@ public class ExerciseDTO {
         this.orderIndex = exercise.getOrderIndex();
     }
 
-    public ExerciseDTO(NewExerciseRequest newExerciseRequest) {
-        this.exerciseName = newExerciseRequest.getExerciseName();
-        this.type = newExerciseRequest.getType() != null ? newExerciseRequest.getType() : null;
-        this.description = newExerciseRequest.getDescription();
-        this.orderIndex = newExerciseRequest.getOrderIndex();
+    public ExerciseDTO(CreateExerciseRequest createExerciseRequest) {
+        this.exerciseName = createExerciseRequest.getExerciseName();
+        this.type = createExerciseRequest.getType() != null ? createExerciseRequest.getType() : null;
+        this.description = createExerciseRequest.getDescription();
+        this.orderIndex = createExerciseRequest.getOrderIndex();
     }
 }
