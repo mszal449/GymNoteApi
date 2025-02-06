@@ -1,8 +1,9 @@
 package gymnote.gymnoteapi.service;
 
-import gymnote.gymnoteapi.entity.User;
+import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.exception.UserNotFoundException;
+import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutDeletionException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
@@ -21,9 +22,10 @@ import java.util.Optional;
 public class WorkoutService {
     private final WorkoutRepository workoutRepository;
     private final UserService userService;
+    private final TemplateService templateService;
 
     public List<Workout> getUserWorkouts(Long userId) {
-        User user = userService.findById(userId)
+        userService.findById(userId)
             .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
         return workoutRepository.findByUserId(userId);
     }
@@ -35,21 +37,29 @@ public class WorkoutService {
             ));
     }
 
-    public Workout createWorkout(Workout workout, Long userId) {
-        User user = userService.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
-        workout.setUser(user);
+    public List<Workout> getUserTemplateWorkouts(Long templateId, Long userId) {
+        return workoutRepository.findByTemplateIdAndUserId(templateId, userId);
+    }
+
+    public Workout createWorkout(Workout workout, Long templateId, Long userId) {
         try {
+            Template template = templateService.getUserTemplateById(templateId, userId);
+            workout.setTemplate(template);
+            workout.setUser(template.getUser());
+
             return workoutRepository.save(workout);
-        } catch (DataIntegrityViolationException e) {
+        } catch (TemplateNotFoundException e) {
+            throw new WorkoutCreationException("Failed to create workout due to missing template", e);
+        }
+        catch (DataIntegrityViolationException e) {
             throw new WorkoutCreationException("Failed to create workout due to data integrity violation", e);
         } catch (Exception e) {
             throw new WorkoutCreationException("Failed to create workout", e);
         }
     }
 
-    public Workout updateWorkout(Long workoutId, Long userId, Workout workoutData) {
+    public Workout updateUserWorkout(Long workoutId, Long userId, Workout workoutData) {
         Workout workout = workoutRepository.findByIdAndUserId(workoutId, userId)
             .orElseThrow(() -> new WorkoutNotFoundException(
                 "Workout not found with id: " + workoutId + " for user: " + userId
@@ -89,8 +99,6 @@ public class WorkoutService {
             .ifPresent(existingWorkout::setEndTime);
         Optional.ofNullable(workoutData.getNotes())
             .ifPresent(existingWorkout::setNotes);
-        Optional.ofNullable(workoutData.getTemplate())
-            .ifPresent(existingWorkout::setTemplate);
         Optional.ofNullable(workoutData.getWorkoutExercises())
             .ifPresent(existingWorkout::setWorkoutExercises);
     }

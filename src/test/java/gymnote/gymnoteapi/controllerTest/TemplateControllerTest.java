@@ -1,4 +1,4 @@
-package gymnote.gymnoteapi;
+package gymnote.gymnoteapi.controllerTest;
 
 import gymnote.gymnoteapi.controller.TemplateController;
 import gymnote.gymnoteapi.entity.Template;
@@ -16,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('USER')")
-@RequestMapping("/api/workout")
+@RequestMapping("/api")
 public class WorkoutController {
     private final WorkoutService workoutService;
 
@@ -39,7 +39,7 @@ public class WorkoutController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/workout/{id}")
     public ResponseEntity<WorkoutDTO> getUserWorkoutById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id) {
@@ -51,27 +51,43 @@ public class WorkoutController {
         }
     }
 
+    @GetMapping("/template/{templateId}/workout")
+     public ResponseEntity<WorkoutsResponse> getTemplateWorkouts(
+             @AuthenticationPrincipal UserDetailsImpl userDetails,
+             @PathVariable Long templateId) {
+         try {
+             List<Workout> workouts = workoutService.getUserTemplateWorkouts(templateId, userDetails.getId());
+             WorkoutsResponse response = new WorkoutsResponse();
+             response.setWorkouts(workouts.stream().map(WorkoutMapper::toDTO).toList());
+             response.setCount(workouts.size());
+             return ResponseEntity.ok(response);
+         } catch (Exception e) {
+             return ResponseEntity.badRequest().build();
+         }
+     }
+
+
     @PostMapping
     public ResponseEntity<WorkoutDTO> createWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CreateWorkoutRequest createWorkoutRequest) {
         try {
             Workout workout = createWorkoutRequest.toEntity();
-            Workout saved = workoutService.createWorkout(workout, userDetails.getId());
+            Workout saved = workoutService.createWorkout(workout, createWorkoutRequest.getTemplateId(), userDetails.getId());
             return ResponseEntity.ok(WorkoutMapper.toDTO(saved));
         } catch (WorkoutCreationException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/workout/{id}")
     public ResponseEntity<WorkoutDTO> updateWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id,
             @RequestBody UpdateWorkoutRequest updateWorkoutRequest) {
         try {
             Workout workoutData = updateWorkoutRequest.toEntity();
-            Workout updated = workoutService.updateWorkout(id, userDetails.getId(), workoutData);
+            Workout updated = workoutService.updateUserWorkout(id, userDetails.getId(), workoutData);
             return ResponseEntity.ok(WorkoutMapper.toDTO(updated));
         } catch (WorkoutNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -80,7 +96,7 @@ public class WorkoutController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/workout/{id}")
     public ResponseEntity<?> deleteWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id) {

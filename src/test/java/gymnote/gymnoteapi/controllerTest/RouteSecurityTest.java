@@ -1,4 +1,4 @@
-package gymnote.gymnoteapi;
+package gymnote.gymnoteapi.controllerTest;
 
 import gymnote.gymnoteapi.entity.ERole;
 import gymnote.gymnoteapi.entity.Role;
