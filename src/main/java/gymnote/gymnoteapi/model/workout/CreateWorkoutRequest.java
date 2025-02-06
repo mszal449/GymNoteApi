@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CreateWorkoutRequest {
-    private Long id;
-    private Long userId;
     private Long templateId;
     private String name;
     private LocalDateTime startTime;
@@ -19,7 +17,6 @@ public class CreateWorkoutRequest {
 
     public Workout toEntity() {
         Workout workout = new Workout();
-        workout.setId(this.id);
         workout.setName(this.name);
         workout.setStartTime(this.startTime);
         workout.setEndTime(this.endTime);

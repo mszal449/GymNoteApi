@@ -1,4 +1,4 @@
-package gymnote.gymnoteapi;
+package gymnote.gymnoteapi.controllerTest;
 
 import gymnote.gymnoteapi.controller.ExerciseController;
 import gymnote.gymnoteapi.entity.EExerciseType;

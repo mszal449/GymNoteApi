@@ -1,9 +1,8 @@
-package gymnote.gymnoteapi;
+package gymnote.gymnoteapi.controllerTest;
 
 import gymnote.gymnoteapi.controller.TemplateController;
 import gymnote.gymnoteapi.entity.*;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
-import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseCreationException;
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
 import gymnote.gymnoteapi.model.templateExercise.CreateTemplateExerciseRequest;
 import gymnote.gymnoteapi.model.templateExercise.TemplateExercisesResponse;

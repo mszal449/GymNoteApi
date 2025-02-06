@@ -30,7 +30,6 @@ public class WorkoutMapper {
 
     public static Workout toEntity(CreateWorkoutRequest workoutRequest) {
         Workout workout = new Workout();
-        workout.setId(workoutRequest.getId());
         workout.setName(workoutRequest.getName());
         workout.setStartTime(workoutRequest.getStartTime());
         workout.setEndTime(workoutRequest.getEndTime());

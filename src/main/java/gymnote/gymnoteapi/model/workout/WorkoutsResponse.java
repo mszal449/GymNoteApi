@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 public class WorkoutsResponse {
-    private Long workoutId;
     private Integer count;
     private List<WorkoutDTO> workouts;
 }
