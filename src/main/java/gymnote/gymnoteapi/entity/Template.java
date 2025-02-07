@@ -38,7 +38,7 @@ public class Template {
     @Getter
     @Setter
     @OneToMany(mappedBy = "template")
-    private Collection<Workout> workout;
+    private Collection<Workout> workouts;
 
     public TemplateDTO toDTO() {
         TemplateDTO templateDTO = new TemplateDTO();

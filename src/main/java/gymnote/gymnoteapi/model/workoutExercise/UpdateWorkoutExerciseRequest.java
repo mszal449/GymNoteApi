@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class UpdateWorkoutExerciseRequest {
     private Long exerciseId;
-    private Integer exerciseOrder;
+    private Integer realOrder;
 
     public WorkoutExercise toEntity() {
         WorkoutExercise workoutExercise = new WorkoutExercise();
@@ -16,7 +16,7 @@ public class UpdateWorkoutExerciseRequest {
             exercise.setId(exerciseId);
             workoutExercise.setExercise(exercise);
         }
-        workoutExercise.setExerciseOrder(exerciseOrder);
+        workoutExercise.setRealOrder(realOrder);
         
 
         return workoutExercise;

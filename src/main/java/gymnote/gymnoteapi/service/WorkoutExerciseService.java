@@ -27,7 +27,7 @@ public class WorkoutExerciseService {
 
     public List<WorkoutExercise> getWorkoutExercises(Long workoutId, Long userId) {
         verifyWorkoutBelongsToUser(workoutId, userId);
-        return workoutExerciseRepository.findByWorkoutIdOrderByExerciseOrder(workoutId);
+        return workoutExerciseRepository.findByWorkoutIdOrderByRealOrder(workoutId);
     }
 
     public WorkoutExercise getWorkoutExerciseById(Long exerciseId, Long workoutId, Long userId) {
@@ -49,11 +49,6 @@ public class WorkoutExerciseService {
         Exercise exercise = exerciseService.getUserExerciseById(workoutExercise.getExercise().getId(), userId);
         workoutExercise.setExercise(exercise);
 
-        // Set the order if not provided
-        if (workoutExercise.getExerciseOrder() == null) {
-            int maxOrder = workoutExerciseRepository.findMaxOrderByWorkoutId(workoutId).orElse(0);
-            workoutExercise.setExerciseOrder(maxOrder + 1);
-        }
 
         try {
             return workoutExerciseRepository.save(workoutExercise);
@@ -112,23 +107,21 @@ public class WorkoutExerciseService {
             WorkoutExercise existingExercise,
             WorkoutExercise workoutExerciseData,
             Long userId) {
-        Optional.ofNullable(workoutExerciseData.getExerciseOrder())
-                .ifPresent(existingExercise::setExerciseOrder);
 
         if (workoutExerciseData.getExercise() != null && workoutExerciseData.getExercise().getId() != null) {
             Exercise exercise = exerciseService.getUserExerciseById(workoutExerciseData.getExercise().getId(), userId);
             existingExercise.setExercise(exercise);
         }
 
-        Optional.ofNullable(workoutExerciseData.getSets())
-                .ifPresent(existingExercise::setSets);
+//        Optional.ofNullable(workoutExerciseData.getSets())
+//                .ifPresent(existingExercise::setSets);
     }
 
     @Transactional
     protected void reorderRemainingExercises(Long workoutId) {
-        List<WorkoutExercise> exercises = workoutExerciseRepository.findByWorkoutIdOrderByExerciseOrder(workoutId);
+        List<WorkoutExercise> exercises = workoutExerciseRepository.findByWorkoutIdOrderByRealOrder(workoutId);
         for (int i = 0; i < exercises.size(); i++) {
-            exercises.get(i).setExerciseOrder(i + 1);
+            exercises.get(i).setRealOrder(i + 1);
         }
         workoutExerciseRepository.saveAll(exercises);
     }

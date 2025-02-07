@@ -14,7 +14,7 @@ public class WorkoutExerciseMapper {
         dto.setWorkoutId(workoutExercise.getWorkout().getId());
         dto.setExerciseId(workoutExercise.getExercise().getId());
         dto.setExerciseName(workoutExercise.getExercise().getExerciseName());
-        dto.setExerciseOrder(workoutExercise.getExerciseOrder());
+        dto.setRealOrder(workoutExercise.getRealOrder());
 
         return dto;
     }

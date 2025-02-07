@@ -8,6 +8,7 @@ public class WorkoutExerciseDTO {
     private Long workoutId;
     private Long exerciseId;
     private String exerciseName;
-    private Integer exerciseOrder;
+    private String exerciseDescription;
+    private Integer realOrder;
 //    private List<ExerciseSetDTO> sets;
 }
