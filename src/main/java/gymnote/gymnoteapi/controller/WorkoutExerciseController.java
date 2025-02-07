@@ -1,6 +1,8 @@
 package gymnote.gymnoteapi.controller;
 
 import gymnote.gymnoteapi.entity.WorkoutExercise;
+import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
+import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseNotFoundException;
 import gymnote.gymnoteapi.mapper.WorkoutExerciseMapper;
 import gymnote.gymnoteapi.model.dto.WorkoutExerciseDTO;
 import gymnote.gymnoteapi.model.workoutExercise.CreateWorkoutExerciseRequest;
@@ -30,10 +32,14 @@ public class WorkoutExerciseController {
             @PathVariable Long workoutId) {
         try {
             List<WorkoutExercise> exercises = workoutExerciseService.getWorkoutExercises(workoutId, userDetails.getId());
+
             WorkoutExercisesResponse response = new WorkoutExercisesResponse();
             response.setExercises(exercises.stream().map(WorkoutExerciseMapper::toDTO).toList());
             response.setCount(exercises.size());
+
             return ResponseEntity.ok(response);
+        } catch (WorkoutNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -47,8 +53,10 @@ public class WorkoutExerciseController {
         try {
             WorkoutExercise exercise = workoutExerciseService.getWorkoutExerciseById(id, workoutId, userDetails.getId());
             return ResponseEntity.ok(WorkoutExerciseMapper.toDTO(exercise));
-        } catch (Exception e) {
+        } catch (WorkoutExerciseNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -58,7 +66,7 @@ public class WorkoutExerciseController {
             @PathVariable Long workoutId,
             @RequestBody CreateWorkoutExerciseRequest createRequest) {
         try {
-            WorkoutExercise exercise = createRequest.toEntity();
+            WorkoutExercise exercise = WorkoutExerciseMapper.toEntity(createRequest);
             WorkoutExercise saved = workoutExerciseService.createWorkoutExercise(exercise, workoutId, userDetails.getId());
             return ResponseEntity.ok(WorkoutExerciseMapper.toDTO(saved));
         } catch (Exception e) {
@@ -73,12 +81,14 @@ public class WorkoutExerciseController {
             @PathVariable Long id,
             @RequestBody UpdateWorkoutExerciseRequest updateRequest) {
         try {
-            WorkoutExercise exerciseData = updateRequest.toEntity();
+            WorkoutExercise exerciseData = WorkoutExerciseMapper.toEntity(updateRequest);
             WorkoutExercise updated = workoutExerciseService.updateWorkoutExercise(
                     id, workoutId, userDetails.getId(), exerciseData);
             return ResponseEntity.ok(WorkoutExerciseMapper.toDTO(updated));
-        } catch (Exception e) {
+        } catch (WorkoutExerciseNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -90,8 +100,10 @@ public class WorkoutExerciseController {
         try {
             workoutExerciseService.deleteWorkoutExercise(id, workoutId, userDetails.getId());
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+        } catch (WorkoutNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

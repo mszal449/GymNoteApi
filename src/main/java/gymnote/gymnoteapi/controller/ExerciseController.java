@@ -6,6 +6,7 @@ import gymnote.gymnoteapi.exception.exercise.ExerciseCreationException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseNotFoundException;
 import gymnote.gymnoteapi.model.dto.ExerciseDTO;
 import gymnote.gymnoteapi.model.exercise.CreateExerciseRequest;
+import gymnote.gymnoteapi.model.exercise.ExercisesResponse;
 import gymnote.gymnoteapi.model.exercise.UpdateExerciseRequest;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.ExerciseService;
@@ -15,6 +16,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +25,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/exercise")
 public class ExerciseController {
     private final ExerciseService exerciseService;
+
+    @GetMapping()
+    public ResponseEntity<ExercisesResponse> getExercises(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        List<Exercise> exercises = exerciseService.getUserExercises(userDetails.getId());
+        ExercisesResponse response = new ExercisesResponse();
+        response.setExercises(exercises.stream().map(Exercise::toDTO).toList());
+        response.setCount(exercises.size());
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{exerciseId}")
     public ResponseEntity<ExerciseDTO> getExerciseById(

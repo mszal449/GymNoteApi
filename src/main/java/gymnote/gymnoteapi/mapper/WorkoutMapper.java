@@ -29,8 +29,6 @@ public class WorkoutMapper {
                         WorkoutExerciseDTO exerciseDTO = new WorkoutExerciseDTO();
                         exerciseDTO.setId(workoutExercise.getId());
                         exerciseDTO.setExerciseId(workoutExercise.getExercise().getId());
-                        exerciseDTO.setExerciseName(workoutExercise.getExercise().getExerciseName());
-                        exerciseDTO.setExerciseDescription(workoutExercise.getExercise().getDescription());
                         exerciseDTO.setRealOrder(workoutExercise.getRealOrder());
 
 //                        // Map sets if they exist

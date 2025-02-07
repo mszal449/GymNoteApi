@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -83,5 +84,9 @@ public class ExerciseService {
 
         Optional.ofNullable(exerciseData.getOrderIndex())
                 .ifPresent(exercise::setOrderIndex);
+    }
+
+    public List<Exercise> getUserExercises(Long id) {
+        return exerciseRepository.findByUserId(id);
     }
 }

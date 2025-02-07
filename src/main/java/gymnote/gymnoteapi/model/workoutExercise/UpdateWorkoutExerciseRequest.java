@@ -17,7 +17,6 @@ public class UpdateWorkoutExerciseRequest {
             workoutExercise.setExercise(exercise);
         }
         workoutExercise.setRealOrder(realOrder);
-        
 
         return workoutExercise;
     }

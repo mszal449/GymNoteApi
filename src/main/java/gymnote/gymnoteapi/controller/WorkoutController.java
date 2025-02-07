@@ -53,7 +53,7 @@ public class WorkoutController {
     }
 
     @GetMapping("/template/{templateId}/workout")
-     public ResponseEntity<WorkoutsResponse> getTemplateWorkouts(
+    public ResponseEntity<WorkoutsResponse> getTemplateWorkouts(
              @AuthenticationPrincipal UserDetailsImpl userDetails,
              @PathVariable Long templateId) {
          try {

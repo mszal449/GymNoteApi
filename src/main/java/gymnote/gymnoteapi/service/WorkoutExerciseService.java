@@ -10,10 +10,10 @@ import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseNotFoundExcep
 import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseUpdateException;
 import gymnote.gymnoteapi.repository.WorkoutExerciseRepository;
 import gymnote.gymnoteapi.repository.WorkoutRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -103,18 +103,16 @@ public class WorkoutExerciseService {
                 ));
     }
 
-    private void updateWorkoutExerciseFields(
-            WorkoutExercise existingExercise,
-            WorkoutExercise workoutExerciseData,
-            Long userId) {
+    private void updateWorkoutExerciseFields(WorkoutExercise existingExercise, WorkoutExercise workoutExerciseData, Long userId) {
+        Optional.ofNullable(workoutExerciseData.getExercise())
+                .ifPresent(exercise -> {
+                    Exercise existingExerciseEntity = exerciseService.getUserExerciseById(exercise.getId(), userId);
+                    existingExercise.setExercise(existingExerciseEntity);
+                });
 
-        if (workoutExerciseData.getExercise() != null && workoutExerciseData.getExercise().getId() != null) {
-            Exercise exercise = exerciseService.getUserExerciseById(workoutExerciseData.getExercise().getId(), userId);
-            existingExercise.setExercise(exercise);
-        }
+        Optional.ofNullable(workoutExerciseData.getRealOrder())
+                .ifPresent(existingExercise::setRealOrder);
 
-//        Optional.ofNullable(workoutExerciseData.getSets())
-//                .ifPresent(existingExercise::setSets);
     }
 
     @Transactional
