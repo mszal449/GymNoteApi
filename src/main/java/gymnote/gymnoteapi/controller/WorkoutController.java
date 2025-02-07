@@ -11,6 +11,7 @@ import gymnote.gymnoteapi.model.workout.WorkoutsResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.WorkoutService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +27,7 @@ import java.util.List;
 public class WorkoutController {
     private final WorkoutService workoutService;
 
-    @GetMapping
+    @GetMapping("/workout")
     public ResponseEntity<WorkoutsResponse> getUserWorkouts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             List<Workout> workouts = workoutService.getUserWorkouts(userDetails.getId());
@@ -77,6 +78,35 @@ public class WorkoutController {
             return ResponseEntity.ok(WorkoutMapper.toDTO(saved));
         } catch (WorkoutCreationException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/workout/start")
+    public ResponseEntity<WorkoutDTO> createWorkoutFromTemplate(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Param("templateId") Long templateId
+    ) {
+        try {
+            if (templateId == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            Workout saved = workoutService.createWorkoutFromTemplate(templateId, userDetails.getId());
+            return ResponseEntity.ok(WorkoutMapper.toDTO(saved));
+        } catch (WorkoutCreationException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("workout/end/{workoutId}")
+    public ResponseEntity<WorkoutDTO> endWorkout(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long workoutId
+    ) {
+        try {
+            Workout workout = workoutService.endWorkout(workoutId, userDetails.getId());
+            return ResponseEntity.ok(WorkoutMapper.toDTO(workout));
+        } catch (WorkoutNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

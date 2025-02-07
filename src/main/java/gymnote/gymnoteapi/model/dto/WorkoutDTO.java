@@ -1,14 +1,11 @@
 package gymnote.gymnoteapi.model.dto;
 
-import gymnote.gymnoteapi.entity.Workout;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class WorkoutDTO {
     private Long id;
     private Long userId;
@@ -17,6 +14,6 @@ public class WorkoutDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String notes;
-//    private List<WorkoutExerciseDTO> workoutExercises;
+    private List<WorkoutExerciseDTO> exercises;
 
 }

@@ -86,19 +86,19 @@ class WorkoutServiceTest {
 
     @Test
     void getUserWorkoutById_Success() {
-        when(workoutRepository.findByIdAndUserId(1L, 1L))
+        when(workoutRepository.findByIdAndUserIdWithExercises(1L, 1L))
                 .thenReturn(Optional.of(workout));
 
         Workout result = workoutService.getUserWorkoutById(1L, 1L);
 
         assertNotNull(result);
         assertEquals("Test Workout", result.getName());
-        verify(workoutRepository).findByIdAndUserId(1L, 1L);
+        verify(workoutRepository).findByIdAndUserIdWithExercises(1L, 1L);
     }
 
     @Test
     void getUserWorkoutById_NotFound() {
-        when(workoutRepository.findByIdAndUserId(1L, 1L))
+        when(workoutRepository.findByIdAndUserIdWithExercises(1L, 1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(WorkoutNotFoundException.class, () -> {
