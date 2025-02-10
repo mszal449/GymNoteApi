@@ -2,7 +2,6 @@ package gymnote.gymnoteapi.service;
 
 import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.exception.UserNotFoundException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseCreationException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseDeletionException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseNotFoundException;
@@ -29,8 +28,7 @@ public class ExerciseService {
     }
 
     public Exercise createExercise(Exercise exercise, Long userId) {
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        User user = userService.findById(userId);
 
         exercise.setUser(user);
         try {

@@ -28,11 +28,12 @@ public class ExerciseController {
 
     @GetMapping()
     public ResponseEntity<ExercisesResponse> getExercises(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
         List<Exercise> exercises = exerciseService.getUserExercises(userDetails.getId());
+
         ExercisesResponse response = new ExercisesResponse();
         response.setExercises(exercises.stream().map(Exercise::toDTO).toList());
         response.setCount(exercises.size());
+
         return ResponseEntity.ok(response);
     }
 

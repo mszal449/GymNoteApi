@@ -39,14 +39,14 @@ public class WorkoutExerciseService {
     }
 
     @Transactional
-    public WorkoutExercise createWorkoutExercise(WorkoutExercise workoutExercise, Long workoutId, Long userId) {
+    public WorkoutExercise createWorkoutExercise(WorkoutExercise workoutExercise, Long workoutId, Long exerciseId, Long userId) {
         Workout workout = verifyWorkoutBelongsToUser(workoutId, userId);
 
         // Set the workout reference
         workoutExercise.setWorkout(workout);
 
         // Verify that the exercise exists
-        Exercise exercise = exerciseService.getUserExerciseById(workoutExercise.getExercise().getId(), userId);
+        Exercise exercise = exerciseService.getUserExerciseById(exerciseId, userId);
         workoutExercise.setExercise(exercise);
 
 

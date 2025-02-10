@@ -67,9 +67,14 @@ public class WorkoutExerciseController {
             @RequestBody CreateWorkoutExerciseRequest createRequest) {
         try {
             WorkoutExercise exercise = WorkoutExerciseMapper.toEntity(createRequest);
-            WorkoutExercise saved = workoutExerciseService.createWorkoutExercise(exercise, workoutId, userDetails.getId());
+            WorkoutExercise saved = workoutExerciseService.createWorkoutExercise(
+                    exercise,
+                    workoutId,
+                    createRequest.getExerciseId(),
+                    userDetails.getId());
             return ResponseEntity.ok(WorkoutExerciseMapper.toDTO(saved));
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
