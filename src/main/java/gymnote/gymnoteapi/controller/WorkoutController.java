@@ -4,14 +4,14 @@ import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.mapper.WorkoutMapper;
+import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
 import gymnote.gymnoteapi.model.workout.CreateWorkoutRequest;
 import gymnote.gymnoteapi.model.workout.UpdateWorkoutRequest;
-import gymnote.gymnoteapi.model.workout.WorkoutsResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.WorkoutService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,113 +28,117 @@ public class WorkoutController {
     private final WorkoutService workoutService;
 
     @GetMapping("/workout")
-    public ResponseEntity<WorkoutsResponse> getUserWorkouts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getUserWorkouts(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         try {
             List<Workout> workouts = workoutService.getUserWorkouts(userDetails.getId());
-            WorkoutsResponse response = new WorkoutsResponse();
-            response.setWorkouts(workouts.stream().map(WorkoutMapper::toDTO).toList());
-            response.setCount(workouts.size());
-            return ResponseEntity.ok(response);
+            List<WorkoutDTO> workoutDTOs = workouts.stream()
+                    .map(WorkoutMapper::toDTO)
+                    .toList();
+            return ResponseEntity.ok(ApiResponse.success(workoutDTOs));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Failed to fetch workouts"));
         }
     }
 
     @GetMapping("/workout/{id}")
-    public ResponseEntity<WorkoutDTO> getUserWorkoutById(
+    public ResponseEntity<ApiResponse<WorkoutDTO>> getUserWorkoutById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id) {
         try {
             Workout workout = workoutService.getUserWorkoutById(id, userDetails.getId());
-            return ResponseEntity.ok(WorkoutMapper.toDTO(workout));
+            return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(workout)));
         } catch (WorkoutNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Workout not found"));
         }
     }
 
     @GetMapping("/template/{templateId}/workout")
-    public ResponseEntity<WorkoutsResponse> getTemplateWorkouts(
-             @AuthenticationPrincipal UserDetailsImpl userDetails,
-             @PathVariable Long templateId) {
-         try {
-             List<Workout> workouts = workoutService.getUserTemplateWorkouts(templateId, userDetails.getId());
-             WorkoutsResponse response = new WorkoutsResponse();
-             response.setWorkouts(workouts.stream().map(WorkoutMapper::toDTO).toList());
-             response.setCount(workouts.size());
-             return ResponseEntity.ok(response);
-         } catch (Exception e) {
-             return ResponseEntity.badRequest().build();
-         }
-     }
+    public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getTemplateWorkouts(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long templateId) {
+        try {
+            List<Workout> workouts = workoutService.getUserTemplateWorkouts(templateId, userDetails.getId());
+            List<WorkoutDTO> workoutDTOs = workouts.stream()
+                    .map(WorkoutMapper::toDTO)
+                    .toList();
+            return ResponseEntity.ok(ApiResponse.success(workoutDTOs));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Failed to fetch template workouts"));
+        }
+    }
 
-
-    @PostMapping
-    public ResponseEntity<WorkoutDTO> createWorkout(
+    @PostMapping("/workout")
+    public ResponseEntity<ApiResponse<WorkoutDTO>> createWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CreateWorkoutRequest createWorkoutRequest) {
         try {
             Workout workout = createWorkoutRequest.toEntity();
             Workout saved = workoutService.createWorkout(workout, createWorkoutRequest.getTemplateId(), userDetails.getId());
-            return ResponseEntity.ok(WorkoutMapper.toDTO(saved));
+            return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(saved)));
         } catch (WorkoutCreationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Failed to create workout"));
         }
     }
 
     @PostMapping("/workout/start")
-    public ResponseEntity<WorkoutDTO> createWorkoutFromTemplate(
+    public ResponseEntity<ApiResponse<WorkoutDTO>> createWorkoutFromTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Param("templateId") Long templateId
-    ) {
+            @RequestParam Long templateId) {
         try {
-            if (templateId == null) {
-                return ResponseEntity.badRequest().build();
-            }
             Workout saved = workoutService.createWorkoutFromTemplate(templateId, userDetails.getId());
-            return ResponseEntity.ok(WorkoutMapper.toDTO(saved));
+            return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(saved)));
         } catch (WorkoutCreationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Failed to create workout from template"));
         }
     }
 
-    @PostMapping("workout/end/{workoutId}")
-    public ResponseEntity<WorkoutDTO> endWorkout(
+    @PostMapping("/workout/end/{workoutId}")
+    public ResponseEntity<ApiResponse<WorkoutDTO>> endWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long workoutId
-    ) {
+            @PathVariable Long workoutId) {
         try {
             Workout workout = workoutService.endWorkout(workoutId, userDetails.getId());
-            return ResponseEntity.ok(WorkoutMapper.toDTO(workout));
+            return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(workout)));
         } catch (WorkoutNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Workout not found"));
         }
     }
 
     @PutMapping("/workout/{id}")
-    public ResponseEntity<WorkoutDTO> updateWorkout(
+    public ResponseEntity<ApiResponse<WorkoutDTO>> updateWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id,
             @RequestBody UpdateWorkoutRequest updateWorkoutRequest) {
         try {
             Workout workoutData = updateWorkoutRequest.toEntity();
             Workout updated = workoutService.updateUserWorkout(id, userDetails.getId(), workoutData);
-            return ResponseEntity.ok(WorkoutMapper.toDTO(updated));
+            return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(updated)));
         } catch (WorkoutNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Workout not found"));
         } catch (WorkoutCreationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Failed to update workout"));
         }
     }
 
     @DeleteMapping("/workout/{id}")
-    public ResponseEntity<?> deleteWorkout(
+    public ResponseEntity<ApiResponse<Void>> deleteWorkout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id) {
         try {
             workoutService.deleteWorkout(id, userDetails.getId());
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(ApiResponse.success(null));
         } catch (WorkoutNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Workout not found"));
         }
     }
 }

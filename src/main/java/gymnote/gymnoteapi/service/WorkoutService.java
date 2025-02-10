@@ -4,17 +4,16 @@ import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.TemplateExercise;
 import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.entity.WorkoutExercise;
-import gymnote.gymnoteapi.exception.UserNotFoundException;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutDeletionException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.exception.workout.WorkoutUpdateException;
 import gymnote.gymnoteapi.repository.WorkoutRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -30,8 +29,7 @@ public class WorkoutService {
     private final TemplateService templateService;
 
     public List<Workout> getUserWorkouts(Long userId) {
-        userService.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        userService.findById(userId);
         return workoutRepository.findByUserId(userId);
     }
 

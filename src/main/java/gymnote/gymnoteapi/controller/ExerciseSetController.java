@@ -3,13 +3,14 @@ package gymnote.gymnoteapi.controller;
 import gymnote.gymnoteapi.entity.ExerciseSet;
 import gymnote.gymnoteapi.exception.exerciseSet.ExerciseSetNotFoundException;
 import gymnote.gymnoteapi.mapper.ExerciseSetMapper;
+import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.ExerciseSetDTO;
 import gymnote.gymnoteapi.model.exerciseSet.CreateExerciseSetRequest;
-import gymnote.gymnoteapi.model.exerciseSet.ExerciseSetsResponse;
 import gymnote.gymnoteapi.model.exerciseSet.UpdateExerciseSetRequest;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.ExerciseSetService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,39 +27,42 @@ public class ExerciseSetController {
     private final ExerciseSetService exerciseSetService;
 
     @GetMapping
-    public ResponseEntity<ExerciseSetsResponse> getExerciseSets(
+    public ResponseEntity<ApiResponse<List<ExerciseSetDTO>>> getExerciseSets(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long workoutId,
             @PathVariable Long exerciseId) {
         try {
             List<ExerciseSet> sets = exerciseSetService.getExerciseSets(workoutId, exerciseId, userDetails.getId());
-            ExerciseSetsResponse response = new ExerciseSetsResponse();
-            response.setSets(sets.stream().map(ExerciseSetMapper::toDTO).toList());
-            response.setCount(sets.size());
-            return ResponseEntity.ok(response);
+            List<ExerciseSetDTO> setDTOs = sets.stream()
+                .map(ExerciseSetMapper::toDTO)
+                .toList();
+            return ResponseEntity.ok(ApiResponse.success(setDTOs));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to fetch exercise sets"));
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ExerciseSetDTO> getExerciseSetById(
+    public ResponseEntity<ApiResponse<ExerciseSetDTO>> getExerciseSetById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long workoutId,
             @PathVariable Long exerciseId,
             @PathVariable Long id) {
         try {
             ExerciseSet set = exerciseSetService.getExerciseSetById(id, exerciseId, workoutId, userDetails.getId());
-            return ResponseEntity.ok(ExerciseSetMapper.toDTO(set));
+            return ResponseEntity.ok(ApiResponse.success(ExerciseSetMapper.toDTO(set)));
         } catch (ExerciseSetNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Exercise set not found"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to fetch exercise set"));
         }
     }
 
     @PostMapping
-    public ResponseEntity<ExerciseSetDTO> createExerciseSet(
+    public ResponseEntity<ApiResponse<ExerciseSetDTO>> createExerciseSet(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long workoutId,
             @PathVariable Long exerciseId,
@@ -66,16 +70,15 @@ public class ExerciseSetController {
         try {
             ExerciseSet set = ExerciseSetMapper.toEntity(createRequest);
             ExerciseSet saved = exerciseSetService.createExerciseSet(set, exerciseId, workoutId, userDetails.getId());
-            return ResponseEntity.ok(ExerciseSetMapper.toDTO(saved));
+            return ResponseEntity.ok(ApiResponse.success(ExerciseSetMapper.toDTO(saved)));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-//            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to create exercise set: " + e.getMessage()));
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ExerciseSetDTO> updateExerciseSet(
+    public ResponseEntity<ApiResponse<ExerciseSetDTO>> updateExerciseSet(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long workoutId,
             @PathVariable Long exerciseId,
@@ -84,27 +87,31 @@ public class ExerciseSetController {
         try {
             ExerciseSet setData = ExerciseSetMapper.toEntity(updateRequest);
             ExerciseSet updated = exerciseSetService.updateExerciseSet(id, setData, exerciseId, workoutId, userDetails.getId());
-            return ResponseEntity.ok(ExerciseSetMapper.toDTO(updated));
+            return ResponseEntity.ok(ApiResponse.success(ExerciseSetMapper.toDTO(updated)));
         } catch (ExerciseSetNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Exercise set not found"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to update exercise set"));
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteExerciseSet(
+    public ResponseEntity<ApiResponse<Void>> deleteExerciseSet(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long workoutId,
             @PathVariable Long exerciseId,
             @PathVariable Long id) {
         try {
             exerciseSetService.deleteExerciseSet(id, exerciseId, workoutId, userDetails.getId());
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(ApiResponse.success(null));
         } catch (ExerciseSetNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Exercise set not found"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to delete exercise set"));
         }
     }
 }
