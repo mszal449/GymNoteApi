@@ -32,7 +32,7 @@ GymNote API is a robust Spring Boot application designed to provide comprehensiv
 - Security Layer: Multiple security layers with JWT token management
 
 
-## 🛠️ Future Enhancements
+## 🧰 Future Enhancements
 - **OAuth integration** for social login and third-party authentication
 - **Workout Analytics** with detailed workout statistics and insights
 - **Mobile app integrations** with Swift-based iOS application
