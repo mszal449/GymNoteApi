@@ -2,7 +2,6 @@ package gymnote.gymnoteapi.service;
 
 import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.exception.UserNotFoundException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseCreationException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseDeletionException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseNotFoundException;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,8 +28,7 @@ public class ExerciseService {
     }
 
     public Exercise createExercise(Exercise exercise, Long userId) {
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        User user = userService.findById(userId);
 
         exercise.setUser(user);
         try {
@@ -83,5 +82,9 @@ public class ExerciseService {
 
         Optional.ofNullable(exerciseData.getOrderIndex())
                 .ifPresent(exercise::setOrderIndex);
+    }
+
+    public List<Exercise> getUserExercises(Long id) {
+        return exerciseRepository.findByUserId(id);
     }
 }

@@ -2,7 +2,6 @@ package gymnote.gymnoteapi.service;
 
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.exception.UserNotFoundException;
 import gymnote.gymnoteapi.exception.template.TemplateCreationException;
 import gymnote.gymnoteapi.exception.template.TemplateDeletionException;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
@@ -39,10 +38,9 @@ public class TemplateService {
 
 
     public Template createUserTemplate(Template template, Long userId) {
-        User user = userService.findById(userId)
-                        .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
-
+        User user = userService.findById(userId);
         template.setUser(user);
+
         try{
             return templateRepository.save(template);
         } catch (DataIntegrityViolationException e) {

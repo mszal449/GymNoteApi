@@ -10,10 +10,10 @@ import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseNotFoundExcep
 import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseUpdateException;
 import gymnote.gymnoteapi.repository.WorkoutExerciseRepository;
 import gymnote.gymnoteapi.repository.WorkoutRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,14 +39,14 @@ public class WorkoutExerciseService {
     }
 
     @Transactional
-    public WorkoutExercise createWorkoutExercise(WorkoutExercise workoutExercise, Long workoutId, Long userId) {
+    public WorkoutExercise createWorkoutExercise(WorkoutExercise workoutExercise, Long workoutId, Long exerciseId, Long userId) {
         Workout workout = verifyWorkoutBelongsToUser(workoutId, userId);
 
         // Set the workout reference
         workoutExercise.setWorkout(workout);
 
         // Verify that the exercise exists
-        Exercise exercise = exerciseService.getUserExerciseById(workoutExercise.getExercise().getId(), userId);
+        Exercise exercise = exerciseService.getUserExerciseById(exerciseId, userId);
         workoutExercise.setExercise(exercise);
 
 
@@ -103,18 +103,16 @@ public class WorkoutExerciseService {
                 ));
     }
 
-    private void updateWorkoutExerciseFields(
-            WorkoutExercise existingExercise,
-            WorkoutExercise workoutExerciseData,
-            Long userId) {
+    private void updateWorkoutExerciseFields(WorkoutExercise existingExercise, WorkoutExercise workoutExerciseData, Long userId) {
+        Optional.ofNullable(workoutExerciseData.getExercise())
+                .ifPresent(exercise -> {
+                    Exercise existingExerciseEntity = exerciseService.getUserExerciseById(exercise.getId(), userId);
+                    existingExercise.setExercise(existingExerciseEntity);
+                });
 
-        if (workoutExerciseData.getExercise() != null && workoutExerciseData.getExercise().getId() != null) {
-            Exercise exercise = exerciseService.getUserExerciseById(workoutExerciseData.getExercise().getId(), userId);
-            existingExercise.setExercise(exercise);
-        }
+        Optional.ofNullable(workoutExerciseData.getRealOrder())
+                .ifPresent(existingExercise::setRealOrder);
 
-//        Optional.ofNullable(workoutExerciseData.getSets())
-//                .ifPresent(existingExercise::setSets);
     }
 
     @Transactional

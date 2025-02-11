@@ -15,5 +15,4 @@ public class WorkoutDTO {
     private LocalDateTime endTime;
     private String notes;
     private List<WorkoutExerciseDTO> exercises;
-
 }

@@ -8,15 +8,17 @@ import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.template.TemplateUpdateException;
 import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseCreationException;
 import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseNotFoundException;
+import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
-import gymnote.gymnoteapi.model.template.*;
+import gymnote.gymnoteapi.model.template.CreateTemplateRequest;
+import gymnote.gymnoteapi.model.template.UpdateTemplateRequest;
 import gymnote.gymnoteapi.model.templateExercise.CreateTemplateExerciseRequest;
-import gymnote.gymnoteapi.model.templateExercise.TemplateExercisesResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateExerciseService;
 import gymnote.gymnoteapi.service.TemplateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,171 +35,160 @@ public class TemplateController {
     public final TemplateService templateService;
     public final TemplateExerciseService templateExerciseService;
 
-    // TEMPLATE ENDPOINTS
-
     @GetMapping
-    public ResponseEntity<TemplatesResponse> getUserTemplates(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<Template> templates = templateService.getTemplatesByUserId(userDetails.getId());
-
-        TemplatesResponse templatesResponse = new TemplatesResponse();
-        templatesResponse.setTemplates(templates.stream().map(TemplateDTO::new).toList());
-        templatesResponse.setCount(templates.size());
-
-        return ResponseEntity.ok(templatesResponse);
+    public ResponseEntity<ApiResponse<List<TemplateDTO>>> getUserTemplates(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        try {
+            List<Template> templates = templateService.getTemplatesByUserId(userDetails.getId());
+            List<TemplateDTO> templateDTOs = templates.stream()
+                .map(Template::toDTO)
+                .toList();
+            return ResponseEntity.ok(ApiResponse.success(templateDTOs));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to fetch templates"));
+        }
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<TemplateDTO> getUserTemplateById(
+    public ResponseEntity<ApiResponse<TemplateDTO>> getUserTemplateById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id) {
         try {
             Template template = templateService.getUserTemplateById(id, userDetails.getId());
-            return ResponseEntity.ok(template.toDTO());
+            return ResponseEntity.ok(ApiResponse.success(template.toDTO()));
         } catch (TemplateNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template not found"));
         }
     }
 
     @PostMapping
-    public ResponseEntity<TemplateDTO> createTemplate(
+    public ResponseEntity<ApiResponse<TemplateDTO>> createTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CreateTemplateRequest createTemplateRequest) {
-        Template template = createTemplateRequest.toEntity();
-
         try {
-            Template createdTemplate = templateService.createUserTemplate(template, userDetails.getId());
-            return ResponseEntity.ok(createdTemplate.toDTO());
+            Template template = createTemplateRequest.toEntity();
+            Template created = templateService.createUserTemplate(template, userDetails.getId());
+            return ResponseEntity.ok(ApiResponse.success(created.toDTO()));
         } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("User not found"));
         } catch (TemplateCreationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to create template"));
         }
     }
 
     @PutMapping("/{templateId}")
-    public ResponseEntity<TemplateDTO> updateTemplate(
+    public ResponseEntity<ApiResponse<TemplateDTO>> updateTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long templateId,
             @RequestBody UpdateTemplateRequest newTemplateRequest) {
-        Template template = newTemplateRequest.toEntity();
-
         try {
-            Template updatedTemplate = templateService.updateUserTemplate(templateId, userDetails.getId(), template);
-            return ResponseEntity.ok(updatedTemplate.toDTO());
+            Template template = newTemplateRequest.toEntity();
+            Template updated = templateService.updateUserTemplate(templateId, userDetails.getId(), template);
+            return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));
         } catch (TemplateNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template not found"));
         } catch (TemplateUpdateException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to update template"));
         }
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTemplateById(
+    public ResponseEntity<ApiResponse<Void>> deleteTemplateById(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long id) {
         try {
             templateService.deleteUserTemplateById(id, userDetails.getId());
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(ApiResponse.success(null));
         } catch (TemplateNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template not found"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to delete template"));
         }
     }
 
-
-    // TEMPLATE EXERCISE ENDPOINTS
-
+    // Template Exercise endpoints
     @GetMapping("/{templateId}/exercise")
-    public ResponseEntity<TemplateExercisesResponse> getTemplateExercises(
+    public ResponseEntity<ApiResponse<List<TemplateExerciseDTO>>> getTemplateExercises(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long templateId) {
         try {
-            List<TemplateExercise> template = templateExerciseService.getUserTemplateExercises(templateId, userDetails.getId());
-
-            TemplateExercisesResponse templateExercisesResponse = new TemplateExercisesResponse();
-            templateExercisesResponse.setTemplateId(templateId);
-            templateExercisesResponse.setTemplateExercises(
-                    template.stream()
-                            .map(TemplateExerciseDTO::new)
-                            .toList());
-            templateExercisesResponse.setCount(template.size());
-
-            return ResponseEntity.ok(templateExercisesResponse);
+            List<TemplateExercise> exercises = templateExerciseService.getUserTemplateExercises(templateId, userDetails.getId());
+            List<TemplateExerciseDTO> exerciseDTOs = exercises.stream()
+                .map(TemplateExercise::toDTO)
+                .toList();
+            return ResponseEntity.ok(ApiResponse.success(exerciseDTOs));
         } catch (TemplateNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template not found"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to fetch template exercises"));
         }
     }
 
     @PostMapping("/{templateId}/exercise")
-    public ResponseEntity<TemplateExerciseDTO> addTemplateExercise(
+    public ResponseEntity<ApiResponse<TemplateExerciseDTO>> addTemplateExercise(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long templateId,
             @RequestBody CreateTemplateExerciseRequest createTemplateExerciseRequest) {
         try {
-            TemplateExercise templateExerciseData = createTemplateExerciseRequest.toEntity();
-
-            TemplateExercise createdExercise = templateExerciseService.addUserTemplateExercise(
-                    templateId,
-                    userDetails.getId(),
-                    templateExerciseData
+            TemplateExercise exerciseData = createTemplateExerciseRequest.toEntity();
+            TemplateExercise created = templateExerciseService.addUserTemplateExercise(
+                templateId, userDetails.getId(), exerciseData
             );
-
-            return ResponseEntity.ok(createdExercise.toDTO());
+            return ResponseEntity.ok(ApiResponse.success(created.toDTO()));
         } catch (TemplateNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template not found"));
         } catch (TemplateExerciseCreationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to create template exercise"));
         }
     }
 
     @PutMapping("/{templateId}/exercise/{exerciseId}")
-    public ResponseEntity<TemplateExerciseDTO> updateTemplateExercise(
+    public ResponseEntity<ApiResponse<TemplateExerciseDTO>> updateTemplateExercise(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long templateId,
             @PathVariable Long exerciseId,
             @RequestBody CreateTemplateExerciseRequest createTemplateExerciseRequest) {
         try {
-            TemplateExercise templateExerciseData = createTemplateExerciseRequest.toEntity();
-
-            TemplateExercise createdExercise = templateExerciseService.updateUserTemplateExercise(
-                    exerciseId,
-                    templateId,
-                    userDetails.getId(),
-                    templateExerciseData
+            TemplateExercise exerciseData = createTemplateExerciseRequest.toEntity();
+            TemplateExercise updated = templateExerciseService.updateUserTemplateExercise(
+                exerciseId, templateId, userDetails.getId(), exerciseData
             );
-
-            return ResponseEntity.ok(createdExercise.toDTO());
+            return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));
         } catch (TemplateNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template not found"));
         } catch (TemplateExerciseCreationException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to update template exercise"));
         }
     }
 
-
     @DeleteMapping("/{templateId}/exercise/{exerciseId}")
-    public ResponseEntity<?> deleteTemplateExercise(
+    public ResponseEntity<ApiResponse<Void>> deleteTemplateExercise(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long templateId,
             @PathVariable Long exerciseId) {
         try {
-            templateExerciseService.deleteUserTemplateExercise(
-                    exerciseId,
-                    templateId,
-                    userDetails.getId()
-            );
-
-            return ResponseEntity.noContent().build();
+            templateExerciseService.deleteUserTemplateExercise(exerciseId, templateId, userDetails.getId());
+            return ResponseEntity.ok(ApiResponse.success(null));
         } catch (TemplateNotFoundException | TemplateExerciseNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("Template or exercise not found"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to delete template exercise"));
         }
     }
 }

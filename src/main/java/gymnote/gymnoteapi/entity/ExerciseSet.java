@@ -1,7 +1,7 @@
 package gymnote.gymnoteapi.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +27,6 @@ public class ExerciseSet {
     private Double distance;    // in meters
     private String notes;
 
-    @NotBlank
+    @Min(0)
     private Integer setOrder;
 }
