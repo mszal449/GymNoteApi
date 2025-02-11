@@ -4,7 +4,6 @@ import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.User;
 import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.exception.UserNotFoundException;
-import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.repository.WorkoutRepository;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,7 +62,7 @@ class WorkoutServiceTest {
 
     @Test
     void getUserWorkouts_Success() {
-        when(userService.findById(1L)).thenReturn(Optional.of(user));
+        when(userService.findById(1L)).thenReturn(user);
         when(workoutRepository.findByUserId(1L)).thenReturn(List.of(workout));
 
         List<Workout> result = workoutService.getUserWorkouts(1L);
@@ -77,7 +75,7 @@ class WorkoutServiceTest {
 
     @Test
     void getUserWorkouts_UserNotFound() {
-        when(userService.findById(1L)).thenReturn(Optional.empty());
+        when(userService.findById(1L)).thenThrow(new UserNotFoundException(""));
 
         assertThrows(UserNotFoundException.class, () -> {
             workoutService.getUserWorkouts(1L);

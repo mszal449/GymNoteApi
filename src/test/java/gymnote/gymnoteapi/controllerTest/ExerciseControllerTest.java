@@ -6,6 +6,7 @@ import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.entity.User;
 import gymnote.gymnoteapi.exception.exercise.ExerciseCreationException;
 import gymnote.gymnoteapi.exception.exercise.ExerciseNotFoundException;
+import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.ExerciseDTO;
 import gymnote.gymnoteapi.model.exercise.CreateExerciseRequest;
 import gymnote.gymnoteapi.model.exercise.UpdateExerciseRequest;
@@ -76,11 +77,13 @@ public class ExerciseControllerTest {
     void getExerciseById_Success() {
         when(exerciseService.getUserExerciseById(anyLong(), anyLong())).thenReturn(exercise);
 
-        ResponseEntity<ExerciseDTO> response = exerciseController.getExerciseById(userDetails, 1L);
+        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController.getExerciseById(userDetails, 1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Push Up", response.getBody().getExerciseName());
+        assertNotNull(response.getBody().getData());
+        assertEquals("Push Up", response.getBody().getData().getExerciseName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -88,20 +91,24 @@ public class ExerciseControllerTest {
         when(exerciseService.getUserExerciseById(anyLong(), anyLong()))
                 .thenThrow(new ExerciseNotFoundException("Exercise not found"));
 
-        ResponseEntity<ExerciseDTO> response = exerciseController.getExerciseById(userDetails, 1L);
+        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController.getExerciseById(userDetails, 1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Exercise not found", response.getBody().getMessage());
     }
 
     @Test
     void createExercise_Success() {
         when(exerciseService.createExercise(any(Exercise.class), anyLong())).thenReturn(exercise);
 
-        ResponseEntity<ExerciseDTO> response = exerciseController.createExercise(userDetails, createExerciseRequest);
+        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController.createExercise(userDetails, createExerciseRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Push Up", response.getBody().getExerciseName());
+        assertNotNull(response.getBody().getData());
+        assertEquals("Push Up", response.getBody().getData().getExerciseName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -109,21 +116,25 @@ public class ExerciseControllerTest {
         when(exerciseService.createExercise(any(Exercise.class), anyLong())).thenThrow(new
                 ExerciseCreationException("Failed to create exercise", new Exception()));
 
-        ResponseEntity<ExerciseDTO> response = exerciseController.createExercise(userDetails, createExerciseRequest);
+        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController.createExercise(userDetails, createExerciseRequest);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Failed to create exercise", response.getBody().getMessage());
     }
 
     @Test
     void updateExercise_Success() {
         when(exerciseService.updateExercise(anyLong(), anyLong(), any(Exercise.class))).thenReturn(exercise);
 
-        ResponseEntity<ExerciseDTO> response =
+        ResponseEntity<ApiResponse<ExerciseDTO>> response =
                 exerciseController.updateExercise(userDetails, 1L, updateExerciseRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Push Up", response.getBody().getExerciseName());
+        assertNotNull(response.getBody().getData());
+        assertEquals("Push Up", response.getBody().getData().getExerciseName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -131,19 +142,23 @@ public class ExerciseControllerTest {
         when(exerciseService.updateExercise(anyLong(), anyLong(), any(Exercise.class)))
                 .thenThrow(new ExerciseNotFoundException("Exercise not found"));
 
-        ResponseEntity<ExerciseDTO> response = exerciseController
+        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController
                 .updateExercise(userDetails, 1L, updateExerciseRequest);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Exercise not found", response.getBody().getMessage());
     }
 
     @Test
     void deleteExercise_Success() {
         doNothing().when(exerciseService).deleteExercise(anyLong(), anyLong());
 
-        ResponseEntity<Void> response = exerciseController.deleteExercise(userDetails, 1L);
+        ResponseEntity<ApiResponse<Void>> response = exerciseController.deleteExercise(userDetails, 1L);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -151,8 +166,10 @@ public class ExerciseControllerTest {
         doThrow(new ExerciseNotFoundException("Exercise not found"))
             .when(exerciseService).deleteExercise(anyLong(), anyLong());
 
-        ResponseEntity<Void> response = exerciseController.deleteExercise(userDetails, 1L);
+        ResponseEntity<ApiResponse<Void>> response = exerciseController.deleteExercise(userDetails, 1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Exercise not found", response.getBody().getMessage());
     }
 }

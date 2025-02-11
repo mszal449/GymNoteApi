@@ -5,6 +5,7 @@ import gymnote.gymnoteapi.entity.User;
 import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
+import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
 import gymnote.gymnoteapi.model.workout.CreateWorkoutRequest;
 import gymnote.gymnoteapi.model.workout.UpdateWorkoutRequest;
@@ -73,23 +74,27 @@ class WorkoutControllerTest {
     void getUserWorkouts_Success() {
         when(workoutService.getUserWorkouts(anyLong())).thenReturn(List.of(workout));
 
-        ResponseEntity<WorkoutsResponse> response = workoutController.getUserWorkouts(userDetails);
+        ResponseEntity<ApiResponse<List<WorkoutDTO>>> response = workoutController.getUserWorkouts(userDetails);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getCount());
-        assertEquals("Test Workout", response.getBody().getWorkouts().get(0).getName());
+        assertNotNull(response.getBody().getData());
+        assertEquals(1, response.getBody().getData().size());
+        assertEquals("Test Workout", response.getBody().getData().get(0).getName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
     void getUserWorkoutById_Success() {
         when(workoutService.getUserWorkoutById(anyLong(), anyLong())).thenReturn(workout);
 
-        ResponseEntity<WorkoutDTO> response = workoutController.getUserWorkoutById(userDetails, 1L);
+        ResponseEntity<ApiResponse<WorkoutDTO>> response = workoutController.getUserWorkoutById(userDetails, 1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Test Workout", response.getBody().getName());
+        assertNotNull(response.getBody().getData());
+        assertEquals("Test Workout", response.getBody().getData().getName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -97,64 +102,75 @@ class WorkoutControllerTest {
         when(workoutService.getUserWorkoutById(anyLong(), anyLong()))
                 .thenThrow(new WorkoutNotFoundException("Workout not found"));
 
-        ResponseEntity<WorkoutDTO> response = workoutController.getUserWorkoutById(userDetails, 1L);
+        ResponseEntity<ApiResponse<WorkoutDTO>> response = workoutController.getUserWorkoutById(userDetails, 1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Workout not found", response.getBody().getMessage());
     }
 
     @Test
     void getTemplateWorkouts_Success() {
         when(workoutService.getUserTemplateWorkouts(anyLong(), anyLong())).thenReturn(List.of(workout));
 
-        ResponseEntity<WorkoutsResponse> response = workoutController.getTemplateWorkouts(userDetails, 1L);
+        ResponseEntity<ApiResponse<List<WorkoutDTO>>> response = workoutController.getTemplateWorkouts(userDetails, 1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getCount());
-        assertEquals("Test Workout", response.getBody().getWorkouts().get(0).getName());
+        assertNotNull(response.getBody().getData());
+        assertEquals(1, response.getBody().getData().size());
+        assertEquals("Test Workout", response.getBody().getData().get(0).getName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
     void getTemplateWorkouts_BadRequest() {
         when(workoutService.getUserTemplateWorkouts(anyLong(), anyLong())).thenThrow(new RuntimeException());
 
-        ResponseEntity<WorkoutsResponse> response = workoutController.getTemplateWorkouts(userDetails, 1L);
+        ResponseEntity<ApiResponse<List<WorkoutDTO>>> response = workoutController.getTemplateWorkouts(userDetails, 1L);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Failed to fetch template workouts", response.getBody().getMessage());
     }
-
 
     @Test
     void createWorkout_Success() {
         when(workoutService.createWorkout(any(Workout.class), anyLong(), anyLong())).thenReturn(workout);
 
-        ResponseEntity<WorkoutDTO> response = workoutController.createWorkout(userDetails, createWorkoutRequest);
+        ResponseEntity<ApiResponse<WorkoutDTO>> response = workoutController.createWorkout(userDetails, createWorkoutRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Test Workout", response.getBody().getName());
+        assertNotNull(response.getBody().getData());
+        assertEquals("Test Workout", response.getBody().getData().getName());
+        assertEquals("Success", response.getBody().getMessage());
     }
-
 
     @Test
     void createWorkout_BadRequest() {
         when(workoutService.createWorkout(any(Workout.class), anyLong(), anyLong()))
                 .thenThrow(new WorkoutCreationException("Failed to create workout", new RuntimeException()));
 
-        ResponseEntity<WorkoutDTO> response = workoutController.createWorkout(userDetails, createWorkoutRequest);
+        ResponseEntity<ApiResponse<WorkoutDTO>> response = workoutController.createWorkout(userDetails, createWorkoutRequest);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Failed to create workout", response.getBody().getMessage());
     }
 
     @Test
     void updateWorkout_Success() {
         when(workoutService.updateUserWorkout(anyLong(), anyLong(), any(Workout.class))).thenReturn(workout);
 
-        ResponseEntity<WorkoutDTO> response = workoutController.updateWorkout(userDetails, 1L, updateWorkoutRequest);
+        ResponseEntity<ApiResponse<WorkoutDTO>> response = 
+            workoutController.updateWorkout(userDetails, 1L, updateWorkoutRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Test Workout", response.getBody().getName());
+        assertNotNull(response.getBody().getData());
+        assertEquals("Test Workout", response.getBody().getData().getName());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -162,18 +178,23 @@ class WorkoutControllerTest {
         when(workoutService.updateUserWorkout(anyLong(), anyLong(), any(Workout.class)))
                 .thenThrow(new WorkoutNotFoundException("Workout not found"));
 
-        ResponseEntity<WorkoutDTO> response = workoutController.updateWorkout(userDetails, 1L, updateWorkoutRequest);
+        ResponseEntity<ApiResponse<WorkoutDTO>> response = 
+            workoutController.updateWorkout(userDetails, 1L, updateWorkoutRequest);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Workout not found", response.getBody().getMessage());
     }
 
     @Test
     void deleteWorkout_Success() {
         doNothing().when(workoutService).deleteWorkout(anyLong(), anyLong());
 
-        ResponseEntity<?> response = workoutController.deleteWorkout(userDetails, 1L);
+        ResponseEntity<ApiResponse<Void>> response = workoutController.deleteWorkout(userDetails, 1L);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Success", response.getBody().getMessage());
         verify(workoutService).deleteWorkout(1L, 1L);
     }
 
@@ -182,8 +203,10 @@ class WorkoutControllerTest {
         doThrow(new WorkoutNotFoundException("Workout not found"))
                 .when(workoutService).deleteWorkout(anyLong(), anyLong());
 
-        ResponseEntity<?> response = workoutController.deleteWorkout(userDetails, 1L);
+        ResponseEntity<ApiResponse<Void>> response = workoutController.deleteWorkout(userDetails, 1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Workout not found", response.getBody().getMessage());
     }
 }

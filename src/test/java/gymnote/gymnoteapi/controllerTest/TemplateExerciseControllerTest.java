@@ -3,9 +3,9 @@ package gymnote.gymnoteapi.controllerTest;
 import gymnote.gymnoteapi.controller.TemplateController;
 import gymnote.gymnoteapi.entity.*;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
+import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
 import gymnote.gymnoteapi.model.templateExercise.CreateTemplateExerciseRequest;
-import gymnote.gymnoteapi.model.templateExercise.TemplateExercisesResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateExerciseService;
 import gymnote.gymnoteapi.service.TemplateService;
@@ -21,7 +21,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -84,12 +85,14 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.getUserTemplateExercises(1L, 1L))
             .thenReturn(List.of(templateExercise));
 
-        ResponseEntity<TemplateExercisesResponse> response = 
+        ResponseEntity<ApiResponse<List<TemplateExerciseDTO>>> response = 
             templateController.getTemplateExercises(userDetails, 1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1, response.getBody().getCount());
+        assertNotNull(response.getBody().getData());
+        assertEquals(1, response.getBody().getData().size());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -97,10 +100,12 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.getUserTemplateExercises(1L, 1L))
             .thenThrow(new TemplateNotFoundException("Template not found"));
 
-        ResponseEntity<TemplateExercisesResponse> response = 
+        ResponseEntity<ApiResponse<List<TemplateExerciseDTO>>> response = 
             templateController.getTemplateExercises(userDetails, 1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Template not found", response.getBody().getMessage());
     }
 
     @Test
@@ -108,12 +113,14 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.addUserTemplateExercise(eq(1L), eq(1L), any(TemplateExercise.class)))
             .thenReturn(templateExercise);
 
-        ResponseEntity<TemplateExerciseDTO> response = 
+        ResponseEntity<ApiResponse<TemplateExerciseDTO>> response = 
             templateController.addTemplateExercise(userDetails, 1L, createRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1L, response.getBody().getExerciseId());
+        assertNotNull(response.getBody().getData());
+        assertEquals(1L, response.getBody().getData().getExerciseId());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -121,10 +128,12 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.addUserTemplateExercise(eq(1L), eq(1L), any(TemplateExercise.class)))
             .thenThrow(new TemplateNotFoundException("Template not found"));
 
-        ResponseEntity<TemplateExerciseDTO> response = 
+        ResponseEntity<ApiResponse<TemplateExerciseDTO>> response = 
             templateController.addTemplateExercise(userDetails, 1L, createRequest);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Template not found", response.getBody().getMessage());
     }
 
     @Test
@@ -132,12 +141,14 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.updateUserTemplateExercise(eq(1L), eq(1L), eq(1L), any(TemplateExercise.class)))
             .thenReturn(templateExercise);
 
-        ResponseEntity<TemplateExerciseDTO> response = 
+        ResponseEntity<ApiResponse<TemplateExerciseDTO>> response = 
             templateController.updateTemplateExercise(userDetails, 1L, 1L, createRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(1L, response.getBody().getExerciseId());
+        assertNotNull(response.getBody().getData());
+        assertEquals(1L, response.getBody().getData().getExerciseId());
+        assertEquals("Success", response.getBody().getMessage());
     }
 
     @Test
@@ -145,22 +156,26 @@ class TemplateExerciseControllerTest {
         doNothing().when(templateExerciseService)
             .deleteUserTemplateExercise(1L, 1L, 1L);
 
-        ResponseEntity<?> response = 
+        ResponseEntity<ApiResponse<Void>> response = 
             templateController.deleteTemplateExercise(userDetails, 1L, 1L);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Success", response.getBody().getMessage());
         verify(templateExerciseService).deleteUserTemplateExercise(1L, 1L, 1L);
     }
 
     @Test
     void deleteTemplateExercise_NotFound() {
-        doThrow(new TemplateNotFoundException("Template not found"))
+        doThrow(new TemplateNotFoundException("Template or exercise not found"))
             .when(templateExerciseService)
             .deleteUserTemplateExercise(1L, 1L, 1L);
 
-        ResponseEntity<?> response = 
+        ResponseEntity<ApiResponse<Void>> response = 
             templateController.deleteTemplateExercise(userDetails, 1L, 1L);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Template or exercise not found", response.getBody().getMessage());
     }
 }
