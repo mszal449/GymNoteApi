@@ -78,7 +78,7 @@ public class WorkoutService {
                         WorkoutExercise workoutExercise = new WorkoutExercise();
                         workoutExercise.setWorkout(workout);
                         workoutExercise.setExercise(templateExercise.getExercise());
-                        workoutExercise.setRealOrder(templateExercise.getExerciseOrder());
+                        workoutExercise.setExerciseOrder(templateExercise.getExerciseOrder());
                         return workoutExercise;
                     })
                     .collect(Collectors.toList());

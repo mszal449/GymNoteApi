@@ -1,6 +1,7 @@
     package gymnote.gymnoteapi.entity;
 
 
+    import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseDuplicateOrderException;
     import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
     import jakarta.persistence.*;
     import lombok.Getter;
@@ -40,5 +41,19 @@
             templateExerciseDTO.setExerciseOrder(exerciseOrder);
 
             return templateExerciseDTO;
+        }
+
+        public void validateExerciseOrder() {
+            if (this.template != null && this.exerciseOrder != null) {
+                boolean duplicateExists = this.template.getTemplateExercises().stream()
+                        .anyMatch(te -> !te.getId().equals(this.getId()) &&
+                                te.getExerciseOrder().equals(this.exerciseOrder));
+
+                if (duplicateExists) {
+                    throw new TemplateExerciseDuplicateOrderException(
+                            "Exercise order " + this.exerciseOrder + " already exists in this template"
+                    );
+                }
+            }
         }
     }

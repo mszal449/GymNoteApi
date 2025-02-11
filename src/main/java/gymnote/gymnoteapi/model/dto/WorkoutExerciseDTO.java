@@ -7,6 +7,6 @@ public class WorkoutExerciseDTO {
     private Long id;
     private Long workoutId;
     private Long exerciseId;
-    private Integer realOrder;
+    private Integer exerciseOrder;
 //    private List<ExerciseSetDTO> sets;
 }

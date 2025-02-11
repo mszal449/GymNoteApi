@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "workout_exercises",uniqueConstraints = {
+@Table(name = "workout_exercises", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"workout_id", "exercise_order"})
 })
 @Getter
@@ -22,12 +22,22 @@ public class WorkoutExercise {
     private Workout workout;
 
     @ManyToOne
-    @JoinColumn(name = "exercise_id", nullable  = false)
+    @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
 
-    @Column(nullable = false)
-    private Integer realOrder;
+    @Column(name = "exercise_order", nullable = false, updatable = false)
+    private Integer exerciseOrder;
 
-//    @OneToMany(mappedBy = "workoutExercise", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<ExerciseSet> sets;
+    @ManyToOne
+    @JoinColumn(name = "template_exercise_id")
+    private TemplateExercise templateExercise;
+
+    @OneToMany(mappedBy = "workoutExercise", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExerciseSet> sets;
+
+    public void initializeFromTemplateExercise(TemplateExercise templateExercise) {
+        this.templateExercise = templateExercise;
+        this.exercise = templateExercise.getExercise();
+        this.exerciseOrder = templateExercise.getExerciseOrder();
+    }
 }

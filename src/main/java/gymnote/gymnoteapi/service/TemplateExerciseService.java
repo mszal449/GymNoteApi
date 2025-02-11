@@ -2,7 +2,6 @@ package gymnote.gymnoteapi.service;
 
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.TemplateExercise;
-import gymnote.gymnoteapi.exception.template.TemplateCreationException;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.templateExercise.*;
 import gymnote.gymnoteapi.repository.TemplateExerciseRepository;
@@ -12,7 +11,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,24 +31,28 @@ public class TemplateExerciseService {
     }
 
     public TemplateExercise addUserTemplateExercise(Long templateId, Long userId, TemplateExercise templateExerciseData) {
-        // Retrieve the template, which will throw TemplateNotFoundException if not found
         Template template = templateService.getUserTemplateById(templateId, userId);
 
         try {
-            // Create new TemplateExercise
             TemplateExercise exercise = new TemplateExercise();
             exercise.setTemplate(template);
             exercise.setExercise(templateExerciseData.getExercise());
-            exercise.setExerciseOrder(templateExerciseData.getExerciseOrder());
 
-            // Save the new TemplateExercise
+            if(templateExerciseData.getExerciseOrder() == null) {
+                exercise.setExerciseOrder(getNextExerciseOrder(template));
+            } else {
+                exercise.setExerciseOrder(templateExerciseData.getExerciseOrder());
+            }
+
+            exercise.validateExerciseOrder();
+
             return templateExerciseRepository.save(exercise);
 
         } catch (DataIntegrityViolationException e) {
-            // More specific exception for database-level constraints
             throw new TemplateExerciseCreationException("Failed to create template exercise due to data constraints", e);
+        } catch (TemplateExerciseDuplicateOrderException e) {
+            throw e;
         } catch (Exception e) {
-            // Catch-all for any unexpected errors
             throw new TemplateExerciseCreationException("Unexpected error creating template exercise", e);
         }
     }
@@ -61,52 +63,25 @@ public class TemplateExerciseService {
             Long userId,
             TemplateExercise templateExerciseData) {
         try {
-            // Check if template belongs to user
             Template template = templateService.getUserTemplateById(templateId, userId);
-
             TemplateExercise existingExercise = templateExerciseRepository
                     .findByIdAndTemplateId(exerciseId, templateId)
-                    .orElseThrow(() -> new TemplateExerciseNotFoundException(
-                            "Template exercise not found with id: " + exerciseId
-                    ));
+                    .orElseThrow(() -> new TemplateExerciseNotFoundException("Template exercise not found with id: " + exerciseId));
 
-            // Check if exercise order is being changed
-            Integer newExerciseOrder = templateExerciseData.getExerciseOrder();
-            if (newExerciseOrder != null && !newExerciseOrder.equals(existingExercise.getExerciseOrder())) {
-                // Check if this exercise order already exists for another exercise in the template
-                boolean orderExists = template.getTemplateExercises().stream()
-                        .anyMatch(te -> te.getExerciseOrder() != null &&
-                                te.getExerciseOrder().equals(newExerciseOrder) &&
-                                !te.getId().equals(exerciseId));
-
-                if (orderExists) {
-                    throw new TemplateExerciseDuplicateOrderException(
-                            "Exercise order " + newExerciseOrder + " already exists in this template"
-                    );
-                }
+            if (templateExerciseData.getExerciseOrder() != null) {
+                existingExercise.setExerciseOrder(templateExerciseData.getExerciseOrder());
+                existingExercise.validateExerciseOrder();
             }
 
-            Optional.ofNullable(templateExerciseData.getExercise())
-                    .ifPresent(existingExercise::setExercise);
+            if (templateExerciseData.getExercise() != null) {
+                existingExercise.setExercise(templateExerciseData.getExercise());
+            }
 
-            Optional.ofNullable(newExerciseOrder)
-                    .ifPresent(existingExercise::setExerciseOrder);
-
-            // Save updated exercise
             return templateExerciseRepository.save(existingExercise);
-
-        } catch (TemplateNotFoundException e) {
-            throw new TemplateExerciseUpdateException("Template not found", e);
-        } catch (DataIntegrityViolationException e) {
-            throw new TemplateExerciseUpdateException(
-                "Failed to update template exercise due to data constraints",
-                e
-            );
+        } catch (TemplateExerciseDuplicateOrderException e) {
+            throw e;
         } catch (Exception e) {
-            throw new TemplateExerciseUpdateException(
-                "Unexpected error updating template exercise",
-                e
-            );
+            throw new TemplateExerciseUpdateException("Failed to update template exercise", e);
         }
     }
 
@@ -128,5 +103,12 @@ public class TemplateExerciseService {
         } catch (Exception e) {
             throw new TemplateExerciseDeletionException("Failed to delete template exercise", e);
         }
+    }
+
+    private Integer getNextExerciseOrder(Template template) {
+        return template.getTemplateExercises().stream()
+                .mapToInt(TemplateExercise::getExerciseOrder)
+                .max()
+                .orElse(0) + 1;
     }
 }

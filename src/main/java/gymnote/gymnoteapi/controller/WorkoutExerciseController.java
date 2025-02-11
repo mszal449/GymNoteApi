@@ -6,8 +6,6 @@ import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseNotFoundExcep
 import gymnote.gymnoteapi.mapper.WorkoutExerciseMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutExerciseDTO;
-import gymnote.gymnoteapi.model.workoutExercise.CreateWorkoutExerciseRequest;
-import gymnote.gymnoteapi.model.workoutExercise.UpdateWorkoutExerciseRequest;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.WorkoutExerciseService;
 import lombok.RequiredArgsConstructor;
@@ -59,64 +57,6 @@ public class WorkoutExerciseController {
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body(ApiResponse.error("Failed to fetch workout exercise"));
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<ApiResponse<WorkoutExerciseDTO>> createWorkoutExercise(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long workoutId,
-            @RequestBody CreateWorkoutExerciseRequest createRequest) {
-        try {
-            WorkoutExercise exercise = WorkoutExerciseMapper.toEntity(createRequest);
-            WorkoutExercise saved = workoutExerciseService.createWorkoutExercise(
-                exercise,
-                workoutId,
-                createRequest.getExerciseId(),
-                userDetails.getId()
-            );
-            return ResponseEntity.ok(ApiResponse.success(WorkoutExerciseMapper.toDTO(saved)));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Failed to create workout exercise: " + e.getMessage()));
-        }
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<WorkoutExerciseDTO>> updateWorkoutExercise(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long workoutId,
-            @PathVariable Long id,
-            @RequestBody UpdateWorkoutExerciseRequest updateRequest) {
-        try {
-            WorkoutExercise exerciseData = WorkoutExerciseMapper.toEntity(updateRequest);
-            WorkoutExercise updated = workoutExerciseService.updateWorkoutExercise(
-                id, workoutId, userDetails.getId(), exerciseData
-            );
-            return ResponseEntity.ok(ApiResponse.success(WorkoutExerciseMapper.toDTO(updated)));
-        } catch (WorkoutExerciseNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error("Workout exercise not found"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Failed to update workout exercise"));
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteWorkoutExercise(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable Long workoutId,
-            @PathVariable Long id) {
-        try {
-            workoutExerciseService.deleteWorkoutExercise(id, workoutId, userDetails.getId());
-            return ResponseEntity.ok(ApiResponse.success(null));
-        } catch (WorkoutNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error("Workout not found"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Failed to delete workout exercise"));
         }
     }
 }

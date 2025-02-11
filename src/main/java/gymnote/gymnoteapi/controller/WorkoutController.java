@@ -1,12 +1,12 @@
 package gymnote.gymnoteapi.controller;
 
 import gymnote.gymnoteapi.entity.Workout;
+import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.mapper.WorkoutMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
-import gymnote.gymnoteapi.model.workout.CreateWorkoutRequest;
 import gymnote.gymnoteapi.model.workout.UpdateWorkoutRequest;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.WorkoutService;
@@ -71,30 +71,22 @@ public class WorkoutController {
         }
     }
 
-    @PostMapping("/workout")
-    public ResponseEntity<ApiResponse<WorkoutDTO>> createWorkout(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody CreateWorkoutRequest createWorkoutRequest) {
-        try {
-            Workout workout = createWorkoutRequest.toEntity();
-            Workout saved = workoutService.createWorkout(workout, createWorkoutRequest.getTemplateId(), userDetails.getId());
-            return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(saved)));
-        } catch (WorkoutCreationException e) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Failed to create workout"));
-        }
-    }
-
-    @PostMapping("/workout/start")
+    @PostMapping("/templates/{templateId}/start")
     public ResponseEntity<ApiResponse<WorkoutDTO>> createWorkoutFromTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam Long templateId) {
+            @PathVariable Long templateId) {
         try {
             Workout saved = workoutService.createWorkoutFromTemplate(templateId, userDetails.getId());
             return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(saved)));
+        } catch (TemplateNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Template not found: " + templateId));
         } catch (WorkoutCreationException e) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("Failed to create workout from template"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Unexpected error while creating workout"));
         }
     }
 

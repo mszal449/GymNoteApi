@@ -22,7 +22,7 @@ public class ExerciseSet {
     private Integer setNumber;
 
     private Integer reps;
-    private Double weight;
+    private Double weight;      // in kg
     private Integer duration;   // in seconds
     private Double distance;    // in meters
     private String notes;

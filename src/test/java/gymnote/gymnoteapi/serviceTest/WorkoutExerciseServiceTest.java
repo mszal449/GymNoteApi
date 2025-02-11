@@ -3,9 +3,7 @@ package gymnote.gymnoteapi.serviceTest;
 import gymnote.gymnoteapi.entity.*;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseCreationException;
-import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseDeletionException;
 import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseNotFoundException;
-import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseUpdateException;
 import gymnote.gymnoteapi.repository.WorkoutExerciseRepository;
 import gymnote.gymnoteapi.repository.WorkoutRepository;
 import gymnote.gymnoteapi.service.ExerciseService;
@@ -24,7 +22,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkoutExerciseServiceTest {
@@ -70,14 +69,14 @@ public class WorkoutExerciseServiceTest {
         workoutExercise.setId(1L);
         workoutExercise.setWorkout(workout);
         workoutExercise.setExercise(exercise);
-        workoutExercise.setRealOrder(1);
+        workoutExercise.setExerciseOrder(1);
     }
 
     @Test
     void getWorkoutExercises_Success() {
         when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
                 .thenReturn(Optional.of(workout));
-        when(workoutExerciseRepository.findByWorkoutIdOrderByRealOrder(WORKOUT_ID))
+        when(workoutExerciseRepository.findByWorkoutIdOrderByExerciseOrder(WORKOUT_ID))
                 .thenReturn(List.of(workoutExercise));
 
         List<WorkoutExercise> result = workoutExerciseService.getWorkoutExercises(WORKOUT_ID, USER_ID);
@@ -149,65 +148,5 @@ public class WorkoutExerciseServiceTest {
 
         assertThrows(WorkoutExerciseCreationException.class, () ->
                 workoutExerciseService.createWorkoutExercise(workoutExercise, WORKOUT_ID, EXERCISE_ID, USER_ID));
-    }
-
-    @Test
-    void updateWorkoutExercise_Success() {
-        when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
-                .thenReturn(Optional.of(workout));
-        when(workoutExerciseRepository.findByIdAndWorkoutId(EXERCISE_ID, WORKOUT_ID))
-                .thenReturn(Optional.of(workoutExercise));
-        when(exerciseService.getUserExerciseById(EXERCISE_ID, USER_ID))
-                .thenReturn(exercise);
-        when(workoutExerciseRepository.save(any(WorkoutExercise.class)))
-                .thenReturn(workoutExercise);
-
-        WorkoutExercise result = workoutExerciseService
-                .updateWorkoutExercise(EXERCISE_ID, WORKOUT_ID, USER_ID, workoutExercise);
-
-        assertNotNull(result);
-        assertEquals(workoutExercise.getId(), result.getId());
-        verify(workoutExerciseRepository).save(any(WorkoutExercise.class));
-    }
-
-    @Test
-    void updateWorkoutExercise_ThrowsWorkoutExerciseUpdateException() {
-        when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
-                .thenReturn(Optional.of(workout));
-        when(workoutExerciseRepository.findByIdAndWorkoutId(EXERCISE_ID, WORKOUT_ID))
-                .thenReturn(Optional.of(workoutExercise));
-        when(workoutExerciseRepository.save(any(WorkoutExercise.class)))
-                .thenThrow(new DataIntegrityViolationException(""));
-
-        assertThrows(WorkoutExerciseUpdateException.class, () ->
-                workoutExerciseService.updateWorkoutExercise(EXERCISE_ID, WORKOUT_ID, USER_ID, workoutExercise));
-    }
-
-    @Test
-    void deleteWorkoutExercise_Success() {
-        when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
-                .thenReturn(Optional.of(workout));
-        when(workoutExerciseRepository.findByIdAndWorkoutId(EXERCISE_ID, WORKOUT_ID))
-                .thenReturn(Optional.of(workoutExercise));
-        when(workoutExerciseRepository.findByWorkoutIdOrderByRealOrder(WORKOUT_ID))
-                .thenReturn(List.of(workoutExercise));
-
-        assertDoesNotThrow(() -> 
-            workoutExerciseService.deleteWorkoutExercise(EXERCISE_ID, WORKOUT_ID, USER_ID));
-        
-        verify(workoutExerciseRepository).delete(workoutExercise);
-        verify(workoutExerciseRepository).saveAll(any());
-    }
-
-    @Test
-    void deleteWorkoutExercise_ThrowsWorkoutExerciseDeletionException() {
-        when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
-                .thenReturn(Optional.of(workout));
-        when(workoutExerciseRepository.findByIdAndWorkoutId(EXERCISE_ID, WORKOUT_ID))
-                .thenReturn(Optional.of(workoutExercise));
-        doThrow(new RuntimeException()).when(workoutExerciseRepository).delete(workoutExercise);
-
-        assertThrows(WorkoutExerciseDeletionException.class, () ->
-                workoutExerciseService.deleteWorkoutExercise(EXERCISE_ID, WORKOUT_ID, USER_ID));
     }
 }

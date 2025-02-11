@@ -6,7 +6,7 @@ import gymnote.gymnoteapi.exception.UserNotFoundException;
 import gymnote.gymnoteapi.exception.template.TemplateCreationException;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.template.TemplateUpdateException;
-import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseCreationException;
+import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseDuplicateOrderException;
 import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseNotFoundException;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateDTO;
@@ -142,15 +142,18 @@ public class TemplateController {
         try {
             TemplateExercise exerciseData = createTemplateExerciseRequest.toEntity();
             TemplateExercise created = templateExerciseService.addUserTemplateExercise(
-                templateId, userDetails.getId(), exerciseData
+                    templateId, userDetails.getId(), exerciseData
             );
             return ResponseEntity.ok(ApiResponse.success(created.toDTO()));
         } catch (TemplateNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error("Template not found"));
-        } catch (TemplateExerciseCreationException e) {
+                    .body(ApiResponse.error("Template not found"));
+        } catch (TemplateExerciseDuplicateOrderException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
             return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Failed to create template exercise"));
+                    .body(ApiResponse.error("Failed to create template exercise"));
         }
     }
 
@@ -163,15 +166,18 @@ public class TemplateController {
         try {
             TemplateExercise exerciseData = createTemplateExerciseRequest.toEntity();
             TemplateExercise updated = templateExerciseService.updateUserTemplateExercise(
-                exerciseId, templateId, userDetails.getId(), exerciseData
+                    exerciseId, templateId, userDetails.getId(), exerciseData
             );
             return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));
         } catch (TemplateNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error("Template not found"));
-        } catch (TemplateExerciseCreationException e) {
+                    .body(ApiResponse.error("Template not found"));
+        } catch (TemplateExerciseDuplicateOrderException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
             return ResponseEntity.badRequest()
-                .body(ApiResponse.error("Failed to update template exercise"));
+                    .body(ApiResponse.error("Failed to update template exercise"));
         }
     }
 

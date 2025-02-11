@@ -24,13 +24,14 @@ public class WorkoutMapper {
         // Map workout exercises if they exist
         if (workout.getWorkoutExercises() != null) {
             workoutDTO.setExercises(workout.getWorkoutExercises().stream()
-                    .sorted(Comparator.comparing(WorkoutExercise::getRealOrder))
+                    .sorted(Comparator.comparing(WorkoutExercise::getExerciseOrder))
                     .map(workoutExercise -> {
                         WorkoutExerciseDTO exerciseDTO = new WorkoutExerciseDTO();
                         exerciseDTO.setId(workoutExercise.getId());
                         exerciseDTO.setExerciseId(workoutExercise.getExercise().getId());
-                        exerciseDTO.setRealOrder(workoutExercise.getRealOrder());
+                        exerciseDTO.setExerciseOrder(workoutExercise.getExerciseOrder());
 
+                        // TODO: do something with it xd
 //                        // Map sets if they exist
 //                        if (workoutExercise.getSets() != null) {
 //                            exerciseDTO.setSets(workoutExercise.getSets().stream()
