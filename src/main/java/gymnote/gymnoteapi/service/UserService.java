@@ -4,21 +4,15 @@ package gymnote.gymnoteapi.service;
 import gymnote.gymnoteapi.entity.User;
 import gymnote.gymnoteapi.exception.user.UserNotFoundException;
 import gymnote.gymnoteapi.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
-
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(
-                () -> new UserNotFoundException("User with username " + username + " not found")
-        );
-    }
+    private final UserRepository userRepository;
 
     public User findById(Long userId) {
         return userRepository.findById(userId).orElseThrow(

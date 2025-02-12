@@ -34,15 +34,14 @@ public class RefreshTokenService {
         if (existingToken.isPresent()) {
             // Update the existing token
             refreshToken = existingToken.get();
-            refreshToken.setToken(UUID.randomUUID().toString());
-            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         } else {
             // Create a new token
             refreshToken = new RefreshToken();
             refreshToken.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
-            refreshToken.setToken(UUID.randomUUID().toString());
-            refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         }
+
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
 
         // Save the token (insert or update)
         return refreshTokenRepository.save(refreshToken);

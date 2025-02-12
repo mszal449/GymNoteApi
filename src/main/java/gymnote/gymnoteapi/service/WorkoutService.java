@@ -71,14 +71,12 @@ public class WorkoutService {
             workout.setName(template.getTemplateName());
             workout.setStartTime(LocalDateTime.now());
 
-            // Convert template exercises to workout exercises
+            // Convert template exercises to work out exercises
             List<WorkoutExercise> workoutExercises = template.getTemplateExercises().stream()
                     .sorted(Comparator.comparing(TemplateExercise::getExerciseOrder))
                     .map(templateExercise -> {
                         WorkoutExercise workoutExercise = new WorkoutExercise();
-                        workoutExercise.setWorkout(workout);
-                        workoutExercise.setExercise(templateExercise.getExercise());
-                        workoutExercise.setExerciseOrder(templateExercise.getExerciseOrder());
+                        workoutExercise.initializeFromTemplateExercise(templateExercise);
                         return workoutExercise;
                     })
                     .collect(Collectors.toList());

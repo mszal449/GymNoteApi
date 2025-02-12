@@ -24,18 +24,15 @@ public class TemplateService {
         return templateRepository.findByUserId(userId);
     }
 
-
     public Template getUserTemplateById(Long templateId, Long userId) {
         return templateRepository.findByIdAndUserId(templateId, userId)
                 .orElseThrow(() -> new TemplateNotFoundException("Template not found with id: " + templateId + " for user: " + userId));
     }
 
-
     public Template getTemplateById(Long id) {
         return templateRepository.findById(id).orElseThrow(() ->
                 new TemplateNotFoundException("Template not found with id: " + id));
     }
-
 
     public Template createUserTemplate(Template template, Long userId) {
         User user = userService.findById(userId);
@@ -49,7 +46,6 @@ public class TemplateService {
             throw new TemplateCreationException("Failed to create template", e);
         }
     }
-
 
     public Template updateUserTemplate(Long templateId, Long userId, Template templateData) {
         Template template = templateRepository.findByIdAndUserId(templateId, userId)
@@ -68,25 +64,6 @@ public class TemplateService {
         }
     }
 
-
-    public Template updateTemplate(Long templateId, Template templateData) {
-        Template template = templateRepository.findById(templateId)
-                .orElseThrow(() -> new TemplateNotFoundException(
-                        "Template not found with id: " + templateData.getId()
-                ));
-
-        updateTemplateFields(template, templateData);
-
-        try {
-            return templateRepository.save(template);
-        } catch (DataIntegrityViolationException e) {
-            throw new TemplateUpdateException("Failed to update exercise due to data integrity violation", e);
-        } catch (Exception e) {
-            throw new TemplateUpdateException("Failed to update exercise", e);
-        }
-    }
-
-
     @Transactional
     public void deleteUserTemplateById(Long id, Long userId) throws IllegalArgumentException{
         Template template = templateRepository.findByIdAndUserId(id, userId)
@@ -101,22 +78,6 @@ public class TemplateService {
         }
     }
 
-
-    @Transactional
-    public void deleteTemplateById(Long id) throws IllegalArgumentException{
-        Template template = templateRepository.findById(id)
-                .orElseThrow(() -> new TemplateNotFoundException(
-                        "Template not found with id: " + id
-                ));
-
-        try {
-            templateRepository.delete(template);
-        } catch (Exception e) {
-            throw new TemplateDeletionException("Failed to delete template", e);
-        }
-    }
-
-
     private void updateTemplateFields(Template existingTemplate, Template template) {
         if (template.getTemplateName() != null) {
             existingTemplate.setTemplateName(template.getTemplateName());
@@ -125,6 +86,4 @@ public class TemplateService {
             existingTemplate.setDescription(template.getDescription());
         }
     }
-
-
 }

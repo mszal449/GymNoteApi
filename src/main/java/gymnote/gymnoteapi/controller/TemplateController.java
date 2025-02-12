@@ -10,7 +10,6 @@ import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import gymnote.gymnoteapi.model.template.CreateTemplateRequest;
 import gymnote.gymnoteapi.model.template.UpdateTemplateRequest;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
-import gymnote.gymnoteapi.service.TemplateExerciseService;
 import gymnote.gymnoteapi.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,8 +26,7 @@ import java.util.List;
 @PreAuthorize("hasRole('USER')")
 @RequestMapping("/api/template")
 public class TemplateController {
-    public final TemplateService templateService;
-    public final TemplateExerciseService templateExerciseService;
+    private final TemplateService templateService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<TemplateDTO>>> getUserTemplates(
