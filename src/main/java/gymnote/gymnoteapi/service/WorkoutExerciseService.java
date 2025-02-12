@@ -43,7 +43,7 @@ public class WorkoutExerciseService {
 
         Exercise exercise = exerciseService.getUserExerciseById(exerciseId, userId);
         workoutExercise.setExercise(exercise);
-        workoutExercise.setExerciseOrder(workoutExercise.getTemplateExercise().getExerciseOrder());
+        workoutExercise.setExerciseOrder(workoutExercise.getExerciseOrder());
 
         try {
             return workoutExerciseRepository.save(workoutExercise);

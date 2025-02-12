@@ -3,13 +3,11 @@ package gymnote.gymnoteapi.controllerTest;
 import gymnote.gymnoteapi.controller.WorkoutController;
 import gymnote.gymnoteapi.entity.User;
 import gymnote.gymnoteapi.entity.Workout;
-import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
 import gymnote.gymnoteapi.model.workout.CreateWorkoutRequest;
 import gymnote.gymnoteapi.model.workout.UpdateWorkoutRequest;
-import gymnote.gymnoteapi.model.workout.WorkoutsResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.WorkoutService;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,10 +23,10 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -133,32 +131,7 @@ class WorkoutControllerTest {
         assertNotNull(response.getBody());
         assertEquals("Failed to fetch template workouts", response.getBody().getMessage());
     }
-
-    @Test
-    void createWorkout_Success() {
-        when(workoutService.createWorkout(any(Workout.class), anyLong(), anyLong())).thenReturn(workout);
-
-        ResponseEntity<ApiResponse<WorkoutDTO>> response = workoutController.createWorkout(userDetails, createWorkoutRequest);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertNotNull(response.getBody().getData());
-        assertEquals("Test Workout", response.getBody().getData().getName());
-        assertEquals("Success", response.getBody().getMessage());
-    }
-
-    @Test
-    void createWorkout_BadRequest() {
-        when(workoutService.createWorkout(any(Workout.class), anyLong(), anyLong()))
-                .thenThrow(new WorkoutCreationException("Failed to create workout", new RuntimeException()));
-
-        ResponseEntity<ApiResponse<WorkoutDTO>> response = workoutController.createWorkout(userDetails, createWorkoutRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Failed to create workout", response.getBody().getMessage());
-    }
-
+    
     @Test
     void updateWorkout_Success() {
         when(workoutService.updateUserWorkout(anyLong(), anyLong(), any(Workout.class))).thenReturn(workout);

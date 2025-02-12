@@ -25,7 +25,7 @@ public class WorkoutExercise {
     @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
 
-    @Column(name = "exerciseOrder", nullable = false, updatable = false)
+    @Column(name = "exercise_order", nullable = false, updatable = false)
     private Integer exerciseOrder;
 
     @ManyToOne
