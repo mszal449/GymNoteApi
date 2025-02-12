@@ -3,9 +3,11 @@ package gymnote.gymnoteapi.controllerTest;
 import gymnote.gymnoteapi.controller.TemplateExerciseController;
 import gymnote.gymnoteapi.entity.*;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
+import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseNotFoundException;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
 import gymnote.gymnoteapi.model.templateExercise.CreateTemplateExerciseRequest;
+import gymnote.gymnoteapi.model.templateExercise.UpdateTemplateExerciseRequest;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateExerciseService;
 import gymnote.gymnoteapi.service.TemplateService;
@@ -21,8 +23,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -44,6 +45,7 @@ class TemplateExerciseControllerTest {
     private Exercise exercise;
     private TemplateExercise templateExercise;
     private CreateTemplateExerciseRequest createRequest;
+    private UpdateTemplateExerciseRequest updateRequest;
 
     @BeforeEach
     void setUp() {
@@ -78,6 +80,11 @@ class TemplateExerciseControllerTest {
         createRequest.setTemplateId(1L);
         createRequest.setExerciseId(1L);
         createRequest.setExerciseOrder(1);
+
+        updateRequest = new UpdateTemplateExerciseRequest();
+        updateRequest.setTemplateId(1L);
+        updateRequest.setExerciseId(1L);
+        updateRequest.setExerciseOrder(2);
     }
 
     @Test
@@ -100,12 +107,9 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.getUserTemplateExercises(1L, 1L))
             .thenThrow(new TemplateNotFoundException("Template not found"));
 
-        ResponseEntity<ApiResponse<List<TemplateExerciseDTO>>> response =
-            templateExerciseController.getTemplateExercises(userDetails, 1L);
+        assertThrows(TemplateNotFoundException.class, () ->
+            templateExerciseController.getTemplateExercises(userDetails, 1L));
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Template not found", response.getBody().getMessage());
     }
 
     @Test
@@ -128,12 +132,8 @@ class TemplateExerciseControllerTest {
         when(templateExerciseService.addUserTemplateExercise(eq(1L), eq(1L), any(TemplateExercise.class)))
             .thenThrow(new TemplateNotFoundException("Template not found"));
 
-        ResponseEntity<ApiResponse<TemplateExerciseDTO>> response =
-            templateExerciseController.addTemplateExercise(userDetails, 1L, createRequest);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Template not found", response.getBody().getMessage());
+        assertThrows(TemplateNotFoundException.class, () ->
+            templateExerciseController.addTemplateExercise(userDetails, 1L, createRequest));
     }
 
     @Test
@@ -142,7 +142,7 @@ class TemplateExerciseControllerTest {
             .thenReturn(templateExercise);
 
         ResponseEntity<ApiResponse<TemplateExerciseDTO>> response =
-            templateExerciseController.updateTemplateExercise(userDetails, 1L, 1L, createRequest);
+            templateExerciseController.updateTemplateExercise(userDetails, 1L, 1L, updateRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -167,15 +167,11 @@ class TemplateExerciseControllerTest {
 
     @Test
     void deleteTemplateExercise_NotFound() {
-        doThrow(new TemplateNotFoundException("Template or exercise not found"))
-            .when(templateExerciseService)
-            .deleteUserTemplateExercise(1L, 1L, 1L);
+        doThrow(new TemplateExerciseNotFoundException("Exercise not found"))
+                .when(templateExerciseService)
+                .deleteUserTemplateExercise(1L, 1L, 1L);
 
-        ResponseEntity<ApiResponse<Void>> response =
-            templateExerciseController.deleteTemplateExercise(userDetails, 1L, 1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Template or exercise not found", response.getBody().getMessage());
+        assertThrows(TemplateExerciseNotFoundException.class, () ->
+                templateExerciseController.deleteTemplateExercise(userDetails, 1L, 1L));
     }
 }
