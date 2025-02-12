@@ -71,7 +71,7 @@ public class WorkoutController {
         }
     }
 
-    @PostMapping("/templates/{templateId}/start")
+    @PostMapping("/template/{templateId}/start")
     public ResponseEntity<ApiResponse<WorkoutDTO>> createWorkoutFromTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long templateId) {
