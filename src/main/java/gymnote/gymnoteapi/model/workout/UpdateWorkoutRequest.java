@@ -24,7 +24,6 @@ public class UpdateWorkoutRequest {
         workout.setStartTime(this.startTime);
         workout.setEndTime(this.endTime);
         workout.setNotes(this.notes);
-        // Note: user and template should be set separately in the service layer
         return workout;
     }
 }

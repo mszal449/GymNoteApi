@@ -1,11 +1,10 @@
 package gymnote.gymnoteapi.exception.workout;
 
-public class WorkoutUpdateException extends RuntimeException {
-    public WorkoutUpdateException(String message) {
-        super(message);
-    }
+import gymnote.gymnoteapi.exception.BaseException;
+import org.springframework.http.HttpStatus;
 
+public class WorkoutUpdateException extends BaseException {
     public WorkoutUpdateException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, HttpStatus.BAD_REQUEST, cause);
     }
 }
