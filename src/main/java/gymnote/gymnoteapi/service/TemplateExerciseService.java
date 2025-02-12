@@ -5,7 +5,6 @@ import gymnote.gymnoteapi.entity.TemplateExercise;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.exception.templateExercise.*;
 import gymnote.gymnoteapi.repository.TemplateExerciseRepository;
-import gymnote.gymnoteapi.repository.TemplateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -16,17 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TemplateExerciseService {
     private final TemplateService templateService;
-    private final TemplateRepository templateRepository;
 
     private final TemplateExerciseRepository templateExerciseRepository;
 
     public List<TemplateExercise> getUserTemplateExercises(Long templateId, Long userId) {
         Template template = templateService.getUserTemplateById(templateId, userId);
-        return template.getTemplateExercises();
-    }
-
-    public List<TemplateExercise> getTemplateExercises(Long templateId) {
-        Template template = templateService.getTemplateById(templateId);
         return template.getTemplateExercises();
     }
 
@@ -63,10 +56,11 @@ public class TemplateExerciseService {
             Long userId,
             TemplateExercise templateExerciseData) {
         try {
-            Template template = templateService.getUserTemplateById(templateId, userId);
+            templateService.getUserTemplateById(templateId, userId);
             TemplateExercise existingExercise = templateExerciseRepository
                     .findByIdAndTemplateId(exerciseId, templateId)
-                    .orElseThrow(() -> new TemplateExerciseNotFoundException("Template exercise not found with id: " + exerciseId));
+                    .orElseThrow(() -> new TemplateExerciseNotFoundException(
+                            "Template exercise not found with id: " + exerciseId));
 
             if (templateExerciseData.getExerciseOrder() != null) {
                 existingExercise.setExerciseOrder(templateExerciseData.getExerciseOrder());

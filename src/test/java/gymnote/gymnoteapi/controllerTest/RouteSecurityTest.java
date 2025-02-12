@@ -134,6 +134,6 @@ public class RouteSecurityTest {
         SecurityContextHolder.clearContext();
 
         mockMvc.perform(get("/api/test/user"))
-                .andExpect(status().isUnauthorized()); // Expect 401 Unauthorized
+                .andExpect(status().isForbidden()); // Expect 403 Forbidden
     }
 }

@@ -1,7 +1,10 @@
 package gymnote.gymnoteapi.exception.template;
 
-public class TemplateNotFoundException extends RuntimeException{
+import gymnote.gymnoteapi.exception.BaseException;
+import org.springframework.http.HttpStatus;
+
+public class TemplateNotFoundException extends BaseException {
     public TemplateNotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

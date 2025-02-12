@@ -1,7 +1,10 @@
 package gymnote.gymnoteapi.exception.templateExercise;
 
-public class TemplateExerciseCreationException extends RuntimeException {
+import gymnote.gymnoteapi.exception.BaseException;
+import org.springframework.http.HttpStatus;
+
+public class TemplateExerciseCreationException extends BaseException {
     public TemplateExerciseCreationException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, HttpStatus.BAD_REQUEST, cause);
     }
 }

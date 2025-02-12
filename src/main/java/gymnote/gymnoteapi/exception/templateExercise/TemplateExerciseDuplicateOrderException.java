@@ -1,7 +1,10 @@
 package gymnote.gymnoteapi.exception.templateExercise;
 
-public class TemplateExerciseDuplicateOrderException extends RuntimeException {
+import gymnote.gymnoteapi.exception.BaseException;
+import org.springframework.http.HttpStatus;
+
+public class TemplateExerciseDuplicateOrderException extends BaseException {
     public TemplateExerciseDuplicateOrderException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

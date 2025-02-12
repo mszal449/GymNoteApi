@@ -3,6 +3,7 @@ package gymnote.gymnoteapi.model.templateExercise;
 import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.TemplateExercise;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,7 @@ public class CreateTemplateExerciseRequest {
     @NotNull
     private Long exerciseId;
 
+    @Min(value = 0, message = "Exercise order must be greater than or equal to 0")
     private Integer exerciseOrder;
 
     // TODO: Remove when mapper is added

@@ -21,8 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -37,7 +36,6 @@ public class ExerciseControllerTest {
     private ExerciseController exerciseController;
 
     private UserDetailsImpl userDetails;
-    private User user;
     private Exercise exercise;
     private CreateExerciseRequest createExerciseRequest;
     private UpdateExerciseRequest updateExerciseRequest;
@@ -91,11 +89,8 @@ public class ExerciseControllerTest {
         when(exerciseService.getUserExerciseById(anyLong(), anyLong()))
                 .thenThrow(new ExerciseNotFoundException("Exercise not found"));
 
-        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController.getExerciseById(userDetails, 1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Exercise not found", response.getBody().getMessage());
+        assertThrows(ExerciseNotFoundException.class, () ->
+                exerciseController.getExerciseById(userDetails, 1L));
     }
 
     @Test
@@ -116,11 +111,8 @@ public class ExerciseControllerTest {
         when(exerciseService.createExercise(any(Exercise.class), anyLong())).thenThrow(new
                 ExerciseCreationException("Failed to create exercise", new Exception()));
 
-        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController.createExercise(userDetails, createExerciseRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Failed to create exercise", response.getBody().getMessage());
+        assertThrows(ExerciseCreationException.class, () ->
+                exerciseController.createExercise(userDetails, createExerciseRequest));
     }
 
     @Test
@@ -142,12 +134,8 @@ public class ExerciseControllerTest {
         when(exerciseService.updateExercise(anyLong(), anyLong(), any(Exercise.class)))
                 .thenThrow(new ExerciseNotFoundException("Exercise not found"));
 
-        ResponseEntity<ApiResponse<ExerciseDTO>> response = exerciseController
-                .updateExercise(userDetails, 1L, updateExerciseRequest);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Exercise not found", response.getBody().getMessage());
+        assertThrows(ExerciseNotFoundException.class, () ->
+                exerciseController.updateExercise(userDetails, 1L, updateExerciseRequest));
     }
 
     @Test
@@ -164,12 +152,9 @@ public class ExerciseControllerTest {
     @Test
     void deleteExercise_NotFound() {
         doThrow(new ExerciseNotFoundException("Exercise not found"))
-            .when(exerciseService).deleteExercise(anyLong(), anyLong());
+                .when(exerciseService).deleteExercise(anyLong(), anyLong());
 
-        ResponseEntity<ApiResponse<Void>> response = exerciseController.deleteExercise(userDetails, 1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Exercise not found", response.getBody().getMessage());
+        assertThrows(ExerciseNotFoundException.class, () ->
+                exerciseController.deleteExercise(userDetails, 1L));
     }
 }

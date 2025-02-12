@@ -1,8 +1,8 @@
 package gymnote.gymnoteapi.entity;
 
-import gymnote.gymnoteapi.exception.templateExercise.TemplateExerciseIllegalOrderIdException;
 import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +27,7 @@ public class Template {
     @Column(nullable = false)
     private String templateName;
 
+    @Size(max = 1000)
     private String description;
 
     @Column(updatable = false)

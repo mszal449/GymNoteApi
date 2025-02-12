@@ -29,10 +29,6 @@ public class TemplateService {
                 .orElseThrow(() -> new TemplateNotFoundException("Template not found with id: " + templateId + " for user: " + userId));
     }
 
-    public Template getTemplateById(Long id) {
-        return templateRepository.findById(id).orElseThrow(() ->
-                new TemplateNotFoundException("Template not found with id: " + id));
-    }
 
     public Template createUserTemplate(Template template, Long userId) {
         User user = userService.findById(userId);
@@ -65,7 +61,7 @@ public class TemplateService {
     }
 
     @Transactional
-    public void deleteUserTemplateById(Long id, Long userId) throws IllegalArgumentException{
+    public void deleteUserTemplateById(Long id, Long userId) {
         Template template = templateRepository.findByIdAndUserId(id, userId)
                         .orElseThrow(() -> new TemplateNotFoundException(
                                 "Template not found with id: " + id + " for user: " + userId
@@ -82,6 +78,7 @@ public class TemplateService {
         if (template.getTemplateName() != null) {
             existingTemplate.setTemplateName(template.getTemplateName());
         }
+
         if (template.getDescription() != null) {
             existingTemplate.setDescription(template.getDescription());
         }

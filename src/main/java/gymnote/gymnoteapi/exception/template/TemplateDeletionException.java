@@ -1,7 +1,10 @@
 package gymnote.gymnoteapi.exception.template;
 
-public class TemplateDeletionException extends RuntimeException {
+import gymnote.gymnoteapi.exception.BaseException;
+import org.springframework.http.HttpStatus;
+
+public class TemplateDeletionException extends BaseException {
     public TemplateDeletionException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, HttpStatus.BAD_REQUEST, cause);
     }
 }

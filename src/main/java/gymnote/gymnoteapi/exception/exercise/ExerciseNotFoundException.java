@@ -1,7 +1,10 @@
 package gymnote.gymnoteapi.exception.exercise;
 
-public class ExerciseNotFoundException extends RuntimeException{
+import gymnote.gymnoteapi.exception.BaseException;
+import org.springframework.http.HttpStatus;
+
+public class ExerciseNotFoundException extends BaseException {
     public ExerciseNotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

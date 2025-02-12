@@ -8,7 +8,6 @@ import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import gymnote.gymnoteapi.model.template.CreateTemplateRequest;
-import gymnote.gymnoteapi.model.template.TemplatesResponse;
 import gymnote.gymnoteapi.security.service.UserDetailsImpl;
 import gymnote.gymnoteapi.service.TemplateService;
 import org.junit.jupiter.api.Test;
@@ -23,8 +22,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -34,10 +32,10 @@ import static org.mockito.Mockito.*;
 class TemplateControllerTest {
 
     @Mock
-    private TemplateService templateService; // Only mock the service
+    private TemplateService templateService;
 
     @InjectMocks
-    private TemplateController templateController; // Controller uses the mocked service
+    private TemplateController templateController;
 
     @Test
     void getUserTemplates_Success() {
@@ -94,11 +92,8 @@ class TemplateControllerTest {
         when(templateService.getUserTemplateById(1L, 1L))
                 .thenThrow(new TemplateNotFoundException("Template not found"));
 
-        ResponseEntity<ApiResponse<TemplateDTO>> response = templateController.getUserTemplateById(userDetails, 1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Template not found", response.getBody().getMessage());
+        assertThrows(TemplateNotFoundException.class, () ->
+            templateController.getUserTemplateById(userDetails, 1L));
     }
 
     @Test
@@ -138,11 +133,9 @@ class TemplateControllerTest {
         when(templateService.createUserTemplate(any(Template.class), eq(1L)))
                 .thenThrow(new TemplateCreationException("Failed to create template", new Exception()));
 
-        ResponseEntity<ApiResponse<TemplateDTO>> response = templateController.createTemplate(userDetails, request);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Failed to create template", response.getBody().getMessage());
+        assertThrows(TemplateCreationException.class, () ->
+             templateController.createTemplate(userDetails, request));
     }
 
     @Test
@@ -163,10 +156,7 @@ class TemplateControllerTest {
         doThrow(new TemplateNotFoundException("Template not found"))
                 .when(templateService).deleteUserTemplateById(1L, 1L);
 
-        ResponseEntity<ApiResponse<Void>> response = templateController.deleteTemplateById(userDetails, 1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Template not found", response.getBody().getMessage());
+        assertThrows(TemplateNotFoundException.class, () ->
+            templateController.deleteTemplateById(userDetails, 1L));
     }
 }
