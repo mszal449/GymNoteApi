@@ -1,6 +1,7 @@
 package gymnote.gymnoteapi.controller;
 
 import gymnote.gymnoteapi.entity.Exercise;
+import gymnote.gymnoteapi.mapper.ExerciseMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.ExerciseDTO;
 import gymnote.gymnoteapi.model.exercise.CreateExerciseRequest;
@@ -46,7 +47,7 @@ public class ExerciseController {
     public ResponseEntity<ApiResponse<ExerciseDTO>> createExercise(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody CreateExerciseRequest request) {
-        Exercise exercise = request.toEntity();
+        Exercise exercise = ExerciseMapper.toEntity(request);
         Exercise saved = exerciseService.createExercise(exercise, userDetails.getId());
         return ResponseEntity.ok(ApiResponse.success(saved.toDTO()));
     }
@@ -56,7 +57,7 @@ public class ExerciseController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @PathVariable Long exerciseId,
             @Valid @RequestBody UpdateExerciseRequest updateExerciseRequest) {
-        Exercise exerciseData = updateExerciseRequest.toEntity();
+        Exercise exerciseData = ExerciseMapper.toEntity(updateExerciseRequest);
         Exercise updated = exerciseService.updateExercise(exerciseId, userDetails.getId(), exerciseData);
         return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));
     }

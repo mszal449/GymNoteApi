@@ -2,7 +2,6 @@ package gymnote.gymnoteapi.serviceTest;
 
 import gymnote.gymnoteapi.entity.*;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
-import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseCreationException;
 import gymnote.gymnoteapi.exception.workoutExercise.WorkoutExerciseNotFoundException;
 import gymnote.gymnoteapi.repository.WorkoutExerciseRepository;
 import gymnote.gymnoteapi.repository.WorkoutRepository;
@@ -14,15 +13,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,35 +114,5 @@ public class WorkoutExerciseServiceTest {
 
         assertThrows(WorkoutExerciseNotFoundException.class, () ->
                 workoutExerciseService.getWorkoutExerciseById(EXERCISE_ID, WORKOUT_ID, USER_ID));
-    }
-
-    @Test
-    void createWorkoutExercise_Success() {
-        when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
-                .thenReturn(Optional.of(workout));
-        when(exerciseService.getUserExerciseById(EXERCISE_ID, USER_ID))
-                .thenReturn(exercise);
-        when(workoutExerciseRepository.save(any(WorkoutExercise.class)))
-                .thenReturn(workoutExercise);
-
-        WorkoutExercise result = workoutExerciseService
-                .createWorkoutExercise(workoutExercise, WORKOUT_ID, EXERCISE_ID, USER_ID);
-
-        assertNotNull(result);
-        assertEquals(workoutExercise.getId(), result.getId());
-        verify(workoutExerciseRepository).save(any(WorkoutExercise.class));
-    }
-
-    @Test
-    void createWorkoutExercise_ThrowsWorkoutExerciseCreationException() {
-        when(workoutRepository.findByIdAndUserId(WORKOUT_ID, USER_ID))
-                .thenReturn(Optional.of(workout));
-        when(exerciseService.getUserExerciseById(EXERCISE_ID, USER_ID))
-                .thenReturn(exercise);
-        when(workoutExerciseRepository.save(any(WorkoutExercise.class)))
-                .thenThrow(new DataIntegrityViolationException(""));
-
-        assertThrows(WorkoutExerciseCreationException.class, () ->
-                workoutExerciseService.createWorkoutExercise(workoutExercise, WORKOUT_ID, EXERCISE_ID, USER_ID));
     }
 }

@@ -1,7 +1,5 @@
 package gymnote.gymnoteapi.model.exercise;
 
-import gymnote.gymnoteapi.entity.EExerciseType;
-import gymnote.gymnoteapi.entity.Exercise;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -22,13 +20,4 @@ public class CreateExerciseRequest {
 
     @Min(value = 0, message = "Order index must be a positive number")
     private Integer orderIndex;
-
-    public Exercise toEntity() {
-        Exercise exercise = new Exercise();
-        exercise.setExerciseName(this.exerciseName);
-        exercise.setDescription(this.description);
-        exercise.setType(EExerciseType.valueOf(this.type));
-        exercise.setOrderIndex(this.orderIndex);
-        return exercise;
-    }
 }
