@@ -1,6 +1,5 @@
 package gymnote.gymnoteapi.model.workout;
 
-import gymnote.gymnoteapi.entity.Workout;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,15 +13,4 @@ public class UpdateWorkoutRequest {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String notes;
-
-    // TODO: remove
-    public Workout toEntity() {
-        Workout workout = new Workout();
-        workout.setId(this.id);
-        workout.setName(this.name);
-        workout.setStartTime(this.startTime);
-        workout.setEndTime(this.endTime);
-        workout.setNotes(this.notes);
-        return workout;
-    }
 }

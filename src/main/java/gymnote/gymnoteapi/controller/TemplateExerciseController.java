@@ -1,6 +1,7 @@
 package gymnote.gymnoteapi.controller;
 
 import gymnote.gymnoteapi.entity.TemplateExercise;
+import gymnote.gymnoteapi.mapper.TemplateExerciseMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
 import gymnote.gymnoteapi.model.templateExercise.CreateTemplateExerciseRequest;
@@ -41,7 +42,7 @@ public class TemplateExerciseController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @PathVariable Long templateId,
             @Valid @RequestBody CreateTemplateExerciseRequest createTemplateExerciseRequest) {
-            TemplateExercise exerciseData = createTemplateExerciseRequest.toEntity();
+            TemplateExercise exerciseData = TemplateExerciseMapper.toEntity(createTemplateExerciseRequest);
             TemplateExercise created = templateExerciseService.addUserTemplateExercise(
                     templateId, userDetails.getId(), exerciseData
             );
@@ -54,7 +55,7 @@ public class TemplateExerciseController {
             @Valid @PathVariable Long templateId,
             @Valid @PathVariable Long exerciseId,
             @Valid @RequestBody UpdateTemplateExerciseRequest updateTemplateExerciseRequest) {
-        TemplateExercise exerciseData = updateTemplateExerciseRequest.toEntity();
+        TemplateExercise exerciseData = TemplateExerciseMapper.toEntity(updateTemplateExerciseRequest);
         TemplateExercise updated = templateExerciseService.updateUserTemplateExercise(
                 exerciseId, templateId, userDetails.getId(), exerciseData
         );

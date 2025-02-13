@@ -1,6 +1,7 @@
 package gymnote.gymnoteapi.controller;
 
 import gymnote.gymnoteapi.entity.Template;
+import gymnote.gymnoteapi.mapper.TemplateMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import gymnote.gymnoteapi.model.template.CreateTemplateRequest;
@@ -49,7 +50,7 @@ public class TemplateController {
     public ResponseEntity<ApiResponse<TemplateDTO>> createTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestBody CreateTemplateRequest createTemplateRequest) {
-        Template template = createTemplateRequest.toEntity();
+        Template template = TemplateMapper.toEntity(createTemplateRequest);
         Template created = templateService.createUserTemplate(template, userDetails.getId());
 
         return ResponseEntity.ok(ApiResponse.success(created.toDTO()));
@@ -59,8 +60,8 @@ public class TemplateController {
     public ResponseEntity<ApiResponse<TemplateDTO>> updateTemplate(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @PathVariable Long templateId,
-            @Valid @RequestBody UpdateTemplateRequest newTemplateRequest) {
-        Template template = newTemplateRequest.toEntity();
+            @Valid @RequestBody UpdateTemplateRequest updateTemplateRequest) {
+        Template template = TemplateMapper.toEntity(updateTemplateRequest);
         Template updated = templateService.updateUserTemplate(templateId, userDetails.getId(), template);
 
         return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));

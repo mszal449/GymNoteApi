@@ -74,7 +74,7 @@ public class WorkoutController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @PathVariable Long id,
             @Valid @RequestBody UpdateWorkoutRequest updateWorkoutRequest) {
-        Workout workoutData = updateWorkoutRequest.toEntity();
+        Workout workoutData = WorkoutMapper.toEntity(updateWorkoutRequest);
         Workout updated = workoutService.updateUserWorkout(id, userDetails.getId(), workoutData);
         return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(updated)));
     }

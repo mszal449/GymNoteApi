@@ -2,9 +2,11 @@ package gymnote.gymnoteapi.mapper;
 
 import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.entity.WorkoutExercise;
+import gymnote.gymnoteapi.model.dto.ExerciseSetDTO;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
 import gymnote.gymnoteapi.model.dto.WorkoutExerciseDTO;
 import gymnote.gymnoteapi.model.workout.CreateWorkoutRequest;
+import gymnote.gymnoteapi.model.workout.UpdateWorkoutRequest;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
@@ -21,7 +23,6 @@ public class WorkoutMapper {
         workoutDTO.setEndTime(workout.getEndTime());
         workoutDTO.setNotes(workout.getNotes());
 
-        // Map workout exercises if they exist
         if (workout.getWorkoutExercises() != null) {
             workoutDTO.setExercises(workout.getWorkoutExercises().stream()
                     .sorted(Comparator.comparing(WorkoutExercise::getExerciseOrder))
@@ -31,20 +32,17 @@ public class WorkoutMapper {
                         exerciseDTO.setExerciseId(workoutExercise.getExercise().getId());
                         exerciseDTO.setExerciseOrder(workoutExercise.getExerciseOrder());
 
-                        // TODO: do something with it xd
-//                        // Map sets if they exist
-//                        if (workoutExercise.getSets() != null) {
-//                            exerciseDTO.setSets(workoutExercise.getSets().stream()
-//                                    .map(set -> {
-//                                        ExerciseSetDTO setDTO = new ExerciseSetDTO();
-//                                        setDTO.setId(set.getId());
-//                                        setDTO.setReps(set.getReps());
-//                                        setDTO.setWeight(set.getWeight());
-//                                        // Add other set properties as needed
-//                                        return setDTO;
-//                                    })
-//                                    .collect(Collectors.toList()));
-//                        }
+                        if (workoutExercise.getSets() != null) {
+                            exerciseDTO.setSets(workoutExercise.getSets().stream()
+                                    .map(set -> {
+                                        ExerciseSetDTO setDTO = new ExerciseSetDTO();
+                                        setDTO.setId(set.getId());
+                                        setDTO.setReps(set.getReps());
+                                        setDTO.setWeight(set.getWeight());
+                                        return setDTO;
+                                    })
+                                    .collect(Collectors.toList()));
+                        }
 
                         return exerciseDTO;
                     })
@@ -54,7 +52,6 @@ public class WorkoutMapper {
         return workoutDTO;
     }
 
-    // Your existing toEntity methods remain the same
     public static Workout toEntity(WorkoutDTO workoutDTO) {
         Workout workout = new Workout();
         workout.setId(workoutDTO.getId());
@@ -66,6 +63,15 @@ public class WorkoutMapper {
     }
 
     public static Workout toEntity(CreateWorkoutRequest workoutRequest) {
+        Workout workout = new Workout();
+        workout.setName(workoutRequest.getName());
+        workout.setStartTime(workoutRequest.getStartTime());
+        workout.setEndTime(workoutRequest.getEndTime());
+        workout.setNotes(workoutRequest.getNotes());
+        return workout;
+    }
+
+    public static Workout toEntity(UpdateWorkoutRequest workoutRequest) {
         Workout workout = new Workout();
         workout.setName(workoutRequest.getName());
         workout.setStartTime(workoutRequest.getStartTime());
