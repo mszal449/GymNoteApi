@@ -2,7 +2,6 @@ package gymnote.gymnoteapi.mapper;
 
 import gymnote.gymnoteapi.entity.Workout;
 import gymnote.gymnoteapi.entity.WorkoutExercise;
-import gymnote.gymnoteapi.model.dto.ExerciseSetDTO;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
 import gymnote.gymnoteapi.model.dto.WorkoutExerciseDTO;
 import gymnote.gymnoteapi.model.workout.CreateWorkoutRequest;
@@ -31,16 +30,9 @@ public class WorkoutMapper {
                         exerciseDTO.setId(workoutExercise.getId());
                         exerciseDTO.setExerciseId(workoutExercise.getExercise().getId());
                         exerciseDTO.setExerciseOrder(workoutExercise.getExerciseOrder());
-
                         if (workoutExercise.getSets() != null) {
                             exerciseDTO.setSets(workoutExercise.getSets().stream()
-                                    .map(set -> {
-                                        ExerciseSetDTO setDTO = new ExerciseSetDTO();
-                                        setDTO.setId(set.getId());
-                                        setDTO.setReps(set.getReps());
-                                        setDTO.setWeight(set.getWeight());
-                                        return setDTO;
-                                    })
+                                    .map(ExerciseSetMapper::toDTO)
                                     .collect(Collectors.toList()));
                         }
 
