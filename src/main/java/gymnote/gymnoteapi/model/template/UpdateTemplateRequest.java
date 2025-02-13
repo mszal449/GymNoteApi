@@ -1,15 +1,14 @@
 package gymnote.gymnoteapi.model.template;
 
 import gymnote.gymnoteapi.entity.Template;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UpdateTemplateRequest {
     private String templateName;
     private String description;
 
+    // TODO: remove
     public Template toEntity() {
         Template template = new Template();
         template.setTemplateName(templateName);

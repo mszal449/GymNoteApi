@@ -5,7 +5,7 @@ import gymnote.gymnoteapi.entity.ERole;
 import gymnote.gymnoteapi.entity.RefreshToken;
 import gymnote.gymnoteapi.entity.Role;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.exception.TokenRefreshException;
+import gymnote.gymnoteapi.exception.token.TokenRefreshException;
 import gymnote.gymnoteapi.model.auth.LoginRequest;
 import gymnote.gymnoteapi.model.auth.SignupRequest;
 import gymnote.gymnoteapi.model.jwt.JwtResponse;

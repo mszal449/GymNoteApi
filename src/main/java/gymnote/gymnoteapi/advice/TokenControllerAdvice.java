@@ -1,7 +1,7 @@
 package gymnote.gymnoteapi.advice;
 
 
-import gymnote.gymnoteapi.exception.TokenRefreshException;
+import gymnote.gymnoteapi.exception.token.TokenRefreshException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -1,11 +1,10 @@
 package gymnote.gymnoteapi.model.jwt;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+
+@Data
 public class TokenRefreshRequest {
     @NotBlank
     private String refreshToken;

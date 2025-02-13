@@ -1,11 +1,11 @@
 package gymnote.gymnoteapi.model.jwt;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+
+
+@Data
 public class MessageResponse {
     private String message;
 

@@ -1,11 +1,10 @@
 package gymnote.gymnoteapi.exception.exerciseSet;
 
-public class ExerciseSetDeletionException extends RuntimeException{
-    public ExerciseSetDeletionException(String message) {
-        super(message);
-    }
+import gymnote.gymnoteapi.exception.base.BaseException;
+import org.springframework.http.HttpStatus;
 
+public class ExerciseSetDeletionException extends BaseException {
     public ExerciseSetDeletionException(String message, Throwable cause) {
-        super(message, cause);
+        super(message, HttpStatus.BAD_REQUEST, cause);
     }
 }

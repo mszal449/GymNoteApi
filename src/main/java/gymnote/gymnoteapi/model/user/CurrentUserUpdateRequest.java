@@ -1,10 +1,8 @@
 package gymnote.gymnoteapi.model.user;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class CurrentUserUpdateRequest {
     private String email;
     private String username;

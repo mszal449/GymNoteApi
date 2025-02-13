@@ -1,4 +1,4 @@
-package gymnote.gymnoteapi.exception;
+package gymnote.gymnoteapi.exception.base;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

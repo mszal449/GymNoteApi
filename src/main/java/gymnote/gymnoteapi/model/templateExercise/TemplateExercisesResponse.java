@@ -1,13 +1,11 @@
 package gymnote.gymnoteapi.model.templateExercise;
 
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class TemplateExercisesResponse {
     private long templateId;
     private int count;

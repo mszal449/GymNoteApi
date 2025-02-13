@@ -1,13 +1,10 @@
 package gymnote.gymnoteapi.model.jwt;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class JwtResponse {
     private String token;
     private String type = "Bearer";

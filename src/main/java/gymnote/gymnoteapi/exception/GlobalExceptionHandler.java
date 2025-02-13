@@ -1,5 +1,6 @@
 package gymnote.gymnoteapi.exception;
 
+import gymnote.gymnoteapi.exception.base.BaseException;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

@@ -2,10 +2,10 @@ package gymnote.gymnoteapi.serviceTest;
 
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.User;
-import gymnote.gymnoteapi.exception.UserNotFoundException;
 import gymnote.gymnoteapi.exception.template.TemplateCreationException;
 import gymnote.gymnoteapi.exception.template.TemplateDeletionException;
 import gymnote.gymnoteapi.exception.template.TemplateNotFoundException;
+import gymnote.gymnoteapi.exception.user.UserNotFoundException;
 import gymnote.gymnoteapi.repository.TemplateRepository;
 import gymnote.gymnoteapi.service.TemplateService;
 import gymnote.gymnoteapi.service.UserService;
@@ -16,8 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

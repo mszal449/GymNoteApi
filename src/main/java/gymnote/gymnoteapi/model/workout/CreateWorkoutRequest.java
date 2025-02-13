@@ -1,13 +1,11 @@
 package gymnote.gymnoteapi.model.workout;
 
 import gymnote.gymnoteapi.entity.Workout;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
 public class CreateWorkoutRequest {
     private Long templateId;
     private String name;
@@ -15,6 +13,7 @@ public class CreateWorkoutRequest {
     private LocalDateTime endTime;
     private String notes;
 
+    // TODO: remove
     public Workout toEntity() {
         Workout workout = new Workout();
         workout.setName(this.name);

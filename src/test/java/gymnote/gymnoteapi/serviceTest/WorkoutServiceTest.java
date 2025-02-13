@@ -3,7 +3,7 @@ package gymnote.gymnoteapi.serviceTest;
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.User;
 import gymnote.gymnoteapi.entity.Workout;
-import gymnote.gymnoteapi.exception.UserNotFoundException;
+import gymnote.gymnoteapi.exception.user.UserNotFoundException;
 import gymnote.gymnoteapi.exception.workout.WorkoutCreationException;
 import gymnote.gymnoteapi.exception.workout.WorkoutNotFoundException;
 import gymnote.gymnoteapi.repository.WorkoutRepository;

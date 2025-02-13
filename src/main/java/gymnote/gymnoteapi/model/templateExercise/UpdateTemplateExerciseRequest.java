@@ -3,16 +3,15 @@ package gymnote.gymnoteapi.model.templateExercise;
 import gymnote.gymnoteapi.entity.Exercise;
 import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.TemplateExercise;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UpdateTemplateExerciseRequest {
     private Long templateId;
     private Long exerciseId;
     private Integer exerciseOrder;
 
+    // TODO: remove
     public TemplateExercise toEntity() {
         TemplateExercise templateExercise = new TemplateExercise();
 

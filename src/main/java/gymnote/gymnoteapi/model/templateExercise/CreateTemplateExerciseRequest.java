@@ -5,11 +5,9 @@ import gymnote.gymnoteapi.entity.Template;
 import gymnote.gymnoteapi.entity.TemplateExercise;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class CreateTemplateExerciseRequest {
     @NotNull
     private Long templateId;

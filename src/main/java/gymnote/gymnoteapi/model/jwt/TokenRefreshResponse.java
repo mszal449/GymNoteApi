@@ -1,10 +1,8 @@
 package gymnote.gymnoteapi.model.jwt;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class TokenRefreshResponse {
     private String accessToken;
     private String refreshToken;

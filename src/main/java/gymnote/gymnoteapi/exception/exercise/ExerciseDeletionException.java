@@ -1,6 +1,6 @@
 package gymnote.gymnoteapi.exception.exercise;
 
-import gymnote.gymnoteapi.exception.BaseException;
+import gymnote.gymnoteapi.exception.base.BaseException;
 import org.springframework.http.HttpStatus;
 
 public class ExerciseDeletionException extends BaseException {

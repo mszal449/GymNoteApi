@@ -1,7 +1,7 @@
 package gymnote.gymnoteapi.security.service;
 
 import gymnote.gymnoteapi.entity.RefreshToken;
-import gymnote.gymnoteapi.exception.TokenRefreshException;
+import gymnote.gymnoteapi.exception.token.TokenRefreshException;
 import gymnote.gymnoteapi.repository.RefreshTokenRepository;
 import gymnote.gymnoteapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
