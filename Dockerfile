@@ -1,5 +1,7 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
-COPY target/*.jar app.jar
+COPY . .
+RUN ./mvnw clean package -DskipTests
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENV SPRING_PROFILES_ACTIVE=docker
+CMD ["sh", "-c", "java -jar target/*.jar"]
