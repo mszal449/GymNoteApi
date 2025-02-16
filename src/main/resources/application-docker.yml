@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:postgresql://db:5432/gymnote
+    url: ${PSQL_SUPABASE_URL}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
