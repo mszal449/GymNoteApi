@@ -90,8 +90,18 @@ public class WebSecurityConfig { // extends WebSecurityConfigurerAdapter {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/api/test/**").permitAll()
+                                .requestMatchers("/oauth2/**", "/login/**").permitAll()
                                 .anyRequest().authenticated()
-                );
+                )
+                .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(userInfo -> userInfo
+                        .userService(userDetailsService))
+                .successHandler((request, response, authentication) -> {
+                    response.sendRedirect("/api/auth/oauth2/callback/google");
+                })
+        )
+                .addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         http.authenticationProvider(authenticationProvider());
 

@@ -2,21 +2,21 @@ package gymnote.gymnoteapi.controller;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import gymnote.gymnoteapi.entity.ERole;
-import gymnote.gymnoteapi.entity.RefreshToken;
-import gymnote.gymnoteapi.entity.Role;
-import gymnote.gymnoteapi.entity.User;
+import gymnote.gymnoteapi.entity.*;
 import gymnote.gymnoteapi.exception.token.TokenRefreshException;
 import gymnote.gymnoteapi.model.auth.LoginRequest;
+import gymnote.gymnoteapi.model.auth.OAuth2UserInfo;
 import gymnote.gymnoteapi.model.jwt.JwtResponse;
 import gymnote.gymnoteapi.model.jwt.MessageResponse;
 import gymnote.gymnoteapi.model.jwt.TokenRefreshRequest;
 import gymnote.gymnoteapi.model.jwt.TokenRefreshResponse;
 import gymnote.gymnoteapi.repository.RoleRepository;
 import gymnote.gymnoteapi.repository.UserRepository;
+import gymnote.gymnoteapi.security.OAuth2UserInfoFactory;
 import gymnote.gymnoteapi.security.jwt.JwtUtils;
 import gymnote.gymnoteapi.model.auth.SignupRequest;
 import gymnote.gymnoteapi.security.service.RefreshTokenService;
@@ -31,11 +31,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -140,5 +138,68 @@ public class AuthController {
     userRepository.save(user);
 
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+  }
+
+
+  @GetMapping("/oauth2/callback/{provider}")
+  public ResponseEntity<?> authenticateOAuth2User(
+        @PathVariable String provider,
+        Authentication authentication)
+    {
+
+    if (!(authentication instanceof OAuth2AuthenticationToken)) {
+      return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid authentication type"));
+    }
+
+      OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+      Map<String, Object> attributes = oauth2User.getAttributes();
+
+      OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, attributes);
+
+      User user = userRepository.findByEmail(userInfo.getEmail())
+              .orElseGet(() -> createNewOAuth2User(userInfo));
+
+      String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
+      RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+      List<String> roles = user.getRoles().stream()
+              .map(role -> role.getName().name())
+              .collect(Collectors.toList());
+
+      return ResponseEntity.ok(new JwtResponse(jwt,
+              refreshToken.getToken(),
+              user.getId(),
+              user.getUsername(), 
+              user.getEmail(),
+              roles));
+    }
+
+  private User createNewOAuth2User(OAuth2UserInfo userInfo) {
+    User user = new User();
+    user.setUsername(generateUniqueUsername(userInfo.getName()));
+    user.setEmail(userInfo.getEmail());
+    user.setProvider(AuthProvider.valueOf(userInfo.getProvider().toUpperCase()));
+    user.setProviderId(userInfo.getId());
+
+    // Set default role as USER
+    Set<Role> roles = new HashSet<>();
+    Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+            .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+    roles.add(userRole);
+    user.setRoles(roles);
+
+    return userRepository.save(user);
+  }
+
+  private String generateUniqueUsername(String name) {
+    String baseUsername = name.toLowerCase().replaceAll("\\s+", "");
+    String username = baseUsername;
+    int counter = 1;
+
+    while (userRepository.existsByUsername(username)) {
+      username = baseUsername + counter++;
+    }
+
+    return username;
   }
 }

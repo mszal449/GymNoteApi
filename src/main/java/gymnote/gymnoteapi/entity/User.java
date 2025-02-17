@@ -35,9 +35,8 @@ public class User {
     private String email;
 
     @JsonIgnore
-    @NotBlank
     @Size(max = 120)
-    private String password;
+    private String password;  // Removed @NotBlank since OAuth2 users won't have a password
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -45,23 +44,39 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider = AuthProvider.LOCAL;
+
+    private String providerId;
+
+    @Column(nullable = false)
+    private Boolean emailVerified = false;
+
+    private String imageUrl;
+
+    @Setter
+    @Getter
+    @OneToMany(mappedBy = "user")
+    private Collection<Template> template;
+
+    // Default constructor
     public User() {
     }
 
+    // Constructor for regular JWT authentication
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.emailVerified = false;
     }
 
-    @OneToMany(mappedBy = "user")
-    private Collection<Template> template;
-
-    public Collection<Template> getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(Collection<Template> template) {
-        this.template = template;
+    // Constructor for OAuth2 authentication
+    public User(String username, String email, AuthProvider provider, String providerId) {
+        this.username = username;
+        this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.emailVerified = true;
     }
 }
