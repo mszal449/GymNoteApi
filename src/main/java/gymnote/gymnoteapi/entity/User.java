@@ -34,10 +34,6 @@ public class User {
     @Email
     private String email;
 
-    @JsonIgnore
-    @Size(max = 120)
-    private String password;  // Removed @NotBlank since OAuth2 users won't have a password
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -64,10 +60,9 @@ public class User {
     }
 
     // Constructor for regular JWT authentication
-    public User(String username, String email, String password) {
+    public User(String username, String email) {
         this.username = username;
         this.email = email;
-        this.password = password;
         this.emailVerified = false;
     }
 

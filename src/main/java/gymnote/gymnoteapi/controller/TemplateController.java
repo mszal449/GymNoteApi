@@ -6,7 +6,7 @@ import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateDTO;
 import gymnote.gymnoteapi.model.template.CreateTemplateRequest;
 import gymnote.gymnoteapi.model.template.UpdateTemplateRequest;
-import gymnote.gymnoteapi.security.service.UserDetailsImpl;
+import gymnote.gymnoteapi.security.service.CustomOAuth2User;
 import gymnote.gymnoteapi.service.TemplateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ public class TemplateController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<TemplateDTO>>> getUserTemplates(
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<Template> templates = templateService.getTemplatesByUserId(userDetails.getId());
+            @AuthenticationPrincipal CustomOAuth2User user) {
+        List<Template> templates = templateService.getTemplatesByUserId(user.getId());
         List<TemplateDTO> templateDTOs = templates.stream()
             .map(Template::toDTO)
             .toList();
@@ -39,39 +39,41 @@ public class TemplateController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TemplateDTO>> getUserTemplateById(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @PathVariable Long id) {
-        Template template = templateService.getUserTemplateById(id, userDetails.getId());
+            @AuthenticationPrincipal CustomOAuth2User user,
+            @Valid @PathVariable Long id,
+            @RequestParam(defaultValue= "false") boolean includeExercises) {
+
+        Template template = templateService.getUserTemplateById(id, user.getId(), includeExercises);
 
         return ResponseEntity.ok(ApiResponse.success(template.toDTO()));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<TemplateDTO>> createTemplate(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @RequestBody CreateTemplateRequest createTemplateRequest) {
         Template template = TemplateMapper.toEntity(createTemplateRequest);
-        Template created = templateService.createUserTemplate(template, userDetails.getId());
+        Template created = templateService.createUserTemplate(template, user.getId());
 
         return ResponseEntity.ok(ApiResponse.success(created.toDTO()));
     }
 
     @PutMapping("/{templateId}")
     public ResponseEntity<ApiResponse<TemplateDTO>> updateTemplate(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long templateId,
             @Valid @RequestBody UpdateTemplateRequest updateTemplateRequest) {
         Template template = TemplateMapper.toEntity(updateTemplateRequest);
-        Template updated = templateService.updateUserTemplate(templateId, userDetails.getId(), template);
+        Template updated = templateService.updateUserTemplate(templateId, user.getId(), template);
 
         return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteTemplateById(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long id) {
-        templateService.deleteUserTemplateById(id, userDetails.getId());
+        templateService.deleteUserTemplateById(id, user.getId());
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }

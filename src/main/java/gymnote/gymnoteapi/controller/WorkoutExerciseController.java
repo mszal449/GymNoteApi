@@ -4,7 +4,7 @@ import gymnote.gymnoteapi.entity.WorkoutExercise;
 import gymnote.gymnoteapi.mapper.WorkoutExerciseMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutExerciseDTO;
-import gymnote.gymnoteapi.security.service.UserDetailsImpl;
+import gymnote.gymnoteapi.security.service.CustomOAuth2User;
 import gymnote.gymnoteapi.service.WorkoutExerciseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,9 @@ public class WorkoutExerciseController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<WorkoutExerciseDTO>>> getWorkoutExercises(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long workoutId) {
-        List<WorkoutExercise> exercises = workoutExerciseService.getWorkoutExercises(workoutId, userDetails.getId());
+        List<WorkoutExercise> exercises = workoutExerciseService.getWorkoutExercises(workoutId, user.getId());
         List<WorkoutExerciseDTO> exerciseDTOs = exercises.stream()
             .map(WorkoutExerciseMapper::toDTO)
             .toList();
@@ -35,10 +35,10 @@ public class WorkoutExerciseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<WorkoutExerciseDTO>> getWorkoutExerciseById(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long workoutId,
             @Valid @PathVariable Long id) {
-        WorkoutExercise exercise = workoutExerciseService.getWorkoutExerciseById(id, workoutId, userDetails.getId());
+        WorkoutExercise exercise = workoutExerciseService.getWorkoutExerciseById(id, workoutId, user.getId());
         return ResponseEntity.ok(ApiResponse.success(WorkoutExerciseMapper.toDTO(exercise)));
     }
 }

@@ -26,6 +26,16 @@ public class TemplateService {
 
     public Template getUserTemplateById(Long templateId, Long userId) {
         return templateRepository.findByIdAndUserId(templateId, userId)
+            .orElseThrow(() -> new TemplateNotFoundException("Template not found with id: " + templateId + " for user: " + userId));
+    }
+
+
+    public Template getUserTemplateById(Long templateId, Long userId, boolean includeExercises) {
+        if (includeExercises) {
+            return templateRepository.findByIdAndUserIdWithExercises(templateId, userId)
+                    .orElseThrow(() -> new TemplateNotFoundException("Template not found with id: " + templateId + " for user: " + userId));
+        }
+        return templateRepository.findByIdAndUserId(templateId, userId)
                 .orElseThrow(() -> new TemplateNotFoundException("Template not found with id: " + templateId + " for user: " + userId));
     }
 

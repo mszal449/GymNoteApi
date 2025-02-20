@@ -12,7 +12,6 @@ public class ExerciseMapper {
         exercise.setExerciseName(request.getExerciseName());
         exercise.setDescription(request.getDescription());
         exercise.setType(EExerciseType.valueOf(request.getType()));
-        exercise.setOrderIndex(request.getOrderIndex());
         return exercise;
     }
 
@@ -31,7 +30,6 @@ public class ExerciseMapper {
         response.setExerciseName(exercise.getExerciseName());
         response.setDescription(exercise.getDescription());
         response.setType(exercise.getType().toString());
-        response.setOrderIndex(exercise.getOrderIndex());
         response.setUserId(exercise.getUser().getId());
         return response;
     }

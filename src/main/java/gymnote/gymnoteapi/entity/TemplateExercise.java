@@ -43,6 +43,19 @@
             return templateExerciseDTO;
         }
 
+        public TemplateExerciseDTO toDTO(boolean includeExercise) {
+            TemplateExerciseDTO templateExerciseDTO = new TemplateExerciseDTO();
+            templateExerciseDTO.setId(id);
+            templateExerciseDTO.setExerciseId(exercise.getId());
+            templateExerciseDTO.setExerciseOrder(exerciseOrder);
+
+            if (includeExercise) {
+                templateExerciseDTO.setExercise(exercise.toDTO());
+            }
+
+            return templateExerciseDTO;
+        }
+
         public void validateExerciseOrder() {
             if (this.template != null && this.exerciseOrder != null) {
                 boolean duplicateExists = this.template.getTemplateExercises().stream()

@@ -6,7 +6,7 @@ import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.TemplateExerciseDTO;
 import gymnote.gymnoteapi.model.templateExercise.CreateTemplateExerciseRequest;
 import gymnote.gymnoteapi.model.templateExercise.UpdateTemplateExerciseRequest;
-import gymnote.gymnoteapi.security.service.UserDetailsImpl;
+import gymnote.gymnoteapi.security.service.CustomOAuth2User;
 import gymnote.gymnoteapi.service.TemplateExerciseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,36 +28,37 @@ public class TemplateExerciseController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<TemplateExerciseDTO>>> getTemplateExercises(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @PathVariable Long templateId) {
-        List<TemplateExercise> exercises = templateExerciseService.getUserTemplateExercises(templateId, userDetails.getId());
+            @AuthenticationPrincipal CustomOAuth2User user,
+            @Valid @PathVariable Long templateId,
+            @RequestParam(defaultValue = "false") boolean includeExercises) {
+        List<TemplateExercise> exercises = templateExerciseService.getUserTemplateExercises(templateId, user.getId(), includeExercises);
         List<TemplateExerciseDTO> exerciseDTOs = exercises.stream()
-            .map(TemplateExercise::toDTO)
-            .toList();
+                .map(exercise -> exercise.toDTO(includeExercises))
+                .toList();
         return ResponseEntity.ok(ApiResponse.success(exerciseDTOs));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<TemplateExerciseDTO>> addTemplateExercise(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long templateId,
             @Valid @RequestBody CreateTemplateExerciseRequest createTemplateExerciseRequest) {
             TemplateExercise exerciseData = TemplateExerciseMapper.toEntity(createTemplateExerciseRequest);
             TemplateExercise created = templateExerciseService.addUserTemplateExercise(
-                    templateId, userDetails.getId(), exerciseData
+                    templateId, user.getId(), exerciseData
             );
             return ResponseEntity.ok(ApiResponse.success(created.toDTO()));
     }
 
     @PutMapping("/{exerciseId}")
     public ResponseEntity<ApiResponse<TemplateExerciseDTO>> updateTemplateExercise(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long templateId,
             @Valid @PathVariable Long exerciseId,
             @Valid @RequestBody UpdateTemplateExerciseRequest updateTemplateExerciseRequest) {
         TemplateExercise exerciseData = TemplateExerciseMapper.toEntity(updateTemplateExerciseRequest);
         TemplateExercise updated = templateExerciseService.updateUserTemplateExercise(
-                exerciseId, templateId, userDetails.getId(), exerciseData
+                exerciseId, templateId, user.getId(), exerciseData
         );
 
         return ResponseEntity.ok(ApiResponse.success(updated.toDTO()));
@@ -65,10 +66,10 @@ public class TemplateExerciseController {
 
     @DeleteMapping("/{exerciseId}")
     public ResponseEntity<ApiResponse<Void>> deleteTemplateExercise(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long templateId,
             @Valid @PathVariable Long exerciseId) {
-        templateExerciseService.deleteUserTemplateExercise(exerciseId, templateId, userDetails.getId());
+        templateExerciseService.deleteUserTemplateExercise(exerciseId, templateId, user.getId());
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

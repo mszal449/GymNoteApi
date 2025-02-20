@@ -17,7 +17,4 @@ public class CreateExerciseRequest {
 
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
-
-    @Min(value = 0, message = "Order index must be a positive number")
-    private Integer orderIndex;
 }

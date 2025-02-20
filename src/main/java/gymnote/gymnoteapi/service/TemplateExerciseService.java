@@ -23,6 +23,15 @@ public class TemplateExerciseService {
         return template.getTemplateExercises();
     }
 
+    public List<TemplateExercise> getUserTemplateExercises(Long templateId, Long userId, boolean includeExercises) {
+        if (includeExercises) {
+            return templateExerciseRepository.findByTemplateIdAndTemplateUserIdWithExercises(templateId, userId);
+        }
+        Template template = templateService.getUserTemplateById(templateId, userId);
+        return template.getTemplateExercises();
+    }
+
+
     public TemplateExercise addUserTemplateExercise(Long templateId, Long userId, TemplateExercise templateExerciseData) {
         Template template = templateService.getUserTemplateById(templateId, userId);
 

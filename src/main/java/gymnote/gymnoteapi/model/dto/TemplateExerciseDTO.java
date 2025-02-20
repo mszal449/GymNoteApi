@@ -11,6 +11,7 @@ public class TemplateExerciseDTO {
     private Long templateId;
     private Long exerciseId;
     private Integer exerciseOrder;
+    private ExerciseDTO exercise;
 
     public TemplateExerciseDTO() {}
 

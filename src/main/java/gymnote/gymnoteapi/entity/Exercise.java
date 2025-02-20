@@ -37,13 +37,11 @@ public class Exercise {
         this.exerciseName = createExerciseRequest.getExerciseName();
         this.type = EExerciseType.valueOf(createExerciseRequest.getType());
         this.description = createExerciseRequest.getDescription();
-        this.orderIndex = createExerciseRequest.getOrderIndex();
     }
 
     public Exercise(ExerciseDTO exerciseDTO) {
         this.exerciseName = exerciseDTO.getExerciseName();
         this.description = exerciseDTO.getDescription();
-        this.orderIndex = exerciseDTO.getOrderIndex();
         this.type = EExerciseType.valueOf(exerciseDTO.getType());
     }
 

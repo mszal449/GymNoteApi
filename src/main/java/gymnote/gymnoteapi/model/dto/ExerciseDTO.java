@@ -13,7 +13,6 @@ public class ExerciseDTO {
     private String exerciseName;
     private String type; // Use String instead of EExerciseType for flexibility
     private String description;
-    private Integer orderIndex;
 
     public ExerciseDTO() {}
 
@@ -23,13 +22,11 @@ public class ExerciseDTO {
         this.exerciseName = exercise.getExerciseName();
         this.type = exercise.getType() != null ? exercise.getType().name() : null;
         this.description = exercise.getDescription();
-        this.orderIndex = exercise.getOrderIndex();
     }
 
     public ExerciseDTO(CreateExerciseRequest createExerciseRequest) {
         this.exerciseName = createExerciseRequest.getExerciseName();
         this.type = createExerciseRequest.getType() != null ? createExerciseRequest.getType() : null;
         this.description = createExerciseRequest.getDescription();
-        this.orderIndex = createExerciseRequest.getOrderIndex();
     }
 }

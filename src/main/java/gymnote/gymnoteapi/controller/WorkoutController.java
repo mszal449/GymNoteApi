@@ -5,7 +5,7 @@ import gymnote.gymnoteapi.mapper.WorkoutMapper;
 import gymnote.gymnoteapi.model.api.ApiResponse;
 import gymnote.gymnoteapi.model.dto.WorkoutDTO;
 import gymnote.gymnoteapi.model.workout.UpdateWorkoutRequest;
-import gymnote.gymnoteapi.security.service.UserDetailsImpl;
+import gymnote.gymnoteapi.security.service.CustomOAuth2User;
 import gymnote.gymnoteapi.service.WorkoutService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,8 @@ public class WorkoutController {
 
     @GetMapping("/workout")
     public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getUserWorkouts(
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<Workout> workouts = workoutService.getUserWorkouts(userDetails.getId());
+            @AuthenticationPrincipal CustomOAuth2User user) {
+        List<Workout> workouts = workoutService.getUserWorkouts(user.getId());
         List<WorkoutDTO> workoutDTOs = workouts.stream()
                 .map(WorkoutMapper::toDTO)
                 .toList();
@@ -36,17 +36,17 @@ public class WorkoutController {
 
     @GetMapping("/workout/{id}")
     public ResponseEntity<ApiResponse<WorkoutDTO>> getUserWorkoutById(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long id) {
-        Workout workout = workoutService.getUserWorkoutById(id, userDetails.getId());
+        Workout workout = workoutService.getUserWorkoutById(id, user.getId());
         return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(workout)));
     }
 
     @GetMapping("/template/{templateId}/workout")
     public ResponseEntity<ApiResponse<List<WorkoutDTO>>> getTemplateWorkouts(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long templateId) {
-        List<Workout> workouts = workoutService.getUserTemplateWorkouts(templateId, userDetails.getId());
+        List<Workout> workouts = workoutService.getUserTemplateWorkouts(templateId, user.getId());
         List<WorkoutDTO> workoutDTOs = workouts.stream()
                 .map(WorkoutMapper::toDTO)
                 .toList();
@@ -55,35 +55,35 @@ public class WorkoutController {
 
     @PostMapping("/template/{templateId}/start")
     public ResponseEntity<ApiResponse<WorkoutDTO>> createWorkoutFromTemplate(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long templateId) {
-        Workout saved = workoutService.createWorkoutFromTemplate(templateId, userDetails.getId());
+        Workout saved = workoutService.createWorkoutFromTemplate(templateId, user.getId());
         return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(saved)));
     }
 
     @PostMapping("/workout/end/{workoutId}")
     public ResponseEntity<ApiResponse<WorkoutDTO>> endWorkout(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long workoutId) {
-        Workout workout = workoutService.endWorkout(workoutId, userDetails.getId());
+        Workout workout = workoutService.endWorkout(workoutId, user.getId());
         return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(workout)));
     }
 
     @PutMapping("/workout/{id}")
     public ResponseEntity<ApiResponse<WorkoutDTO>> updateWorkout(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @Valid @PathVariable Long id,
             @Valid @RequestBody UpdateWorkoutRequest updateWorkoutRequest) {
         Workout workoutData = WorkoutMapper.toEntity(updateWorkoutRequest);
-        Workout updated = workoutService.updateUserWorkout(id, userDetails.getId(), workoutData);
+        Workout updated = workoutService.updateUserWorkout(id, user.getId(), workoutData);
         return ResponseEntity.ok(ApiResponse.success(WorkoutMapper.toDTO(updated)));
     }
 
     @DeleteMapping("/workout/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteWorkout(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @AuthenticationPrincipal CustomOAuth2User user,
             @PathVariable Long id) {
-        workoutService.deleteWorkout(id, userDetails.getId());
+        workoutService.deleteWorkout(id, user.getId());
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
